@@ -30,16 +30,27 @@ export const Login = () => {
       >
         <Card className="p-8">
           <div className="flex flex-col items-center mb-8">
-            <div className="w-16 h-16 bg-primary rounded-2xl flex items-center justify-center text-white shadow-soft transform rotate-3 mb-4">
-              <Wallet size={32} />
+            
+            {/* LOGO DIGANTI DI SINI */}
+            <div className="w-16 h-16 bg-primary rounded-2xl flex items-center justify-center shadow-soft transform rotate-3 mb-4 overflow-hidden">
+              <img 
+                src="/logo.png" 
+                alt="Logo" 
+                className="w-10 h-10 object-contain"
+              />
             </div>
+
             <h2 className="text-3xl text-accent text-center">Welcome Back!</h2>
-            <p className="text-text/70 mt-2 text-center">Ready to level up your finances?</p>
+            <p className="text-text/70 mt-2 text-center">
+              Ready to level up your finances?
+            </p>
           </div>
 
           <form className="space-y-4" onSubmit={handleLogin}>
             <div>
-              <label className="block text-sm font-bold text-text/80 mb-1">Email</label>
+              <label className="block text-sm font-bold text-text/80 mb-1">
+                Email
+              </label>
               <input 
                 type="email" 
                 className="w-full bg-background border-2 border-orange-100 rounded-xl px-4 py-3 focus:outline-none focus:border-primary font-medium transition-colors"
@@ -47,8 +58,11 @@ export const Login = () => {
                 required
               />
             </div>
+
             <div>
-              <label className="block text-sm font-bold text-text/80 mb-1">Password</label>
+              <label className="block text-sm font-bold text-text/80 mb-1">
+                Password
+              </label>
               <input 
                 type="password" 
                 className="w-full bg-background border-2 border-orange-100 rounded-xl px-4 py-3 focus:outline-none focus:border-primary font-medium transition-colors"
@@ -65,7 +79,10 @@ export const Login = () => {
           <div className="mt-6 text-center">
             <p className="text-text/70 font-medium">
               Don't have an account?{' '}
-              <Link to="/register" className="text-primary font-bold hover:underline">
+              <Link 
+                to="/register" 
+                className="text-primary font-bold hover:underline"
+              >
                 {t('register')}
               </Link>
             </p>
