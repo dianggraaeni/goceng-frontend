@@ -37,16 +37,14 @@ export const Register = () => {
               />
             </div>
 
-            <h2 className="text-3xl text-accent text-center">Join GOCENG!</h2>
-            <p className="text-text/70 mt-2 text-center">
-              Start your fun financial journey today.
-            </p>
+            <h2 className="text-3xl text-accent text-center">{t('joinGoceng')}</h2>
+            <p className="text-text/70 mt-2 text-center">{t('joinDesc')}</p>
           </div>
 
           <form className="space-y-4" onSubmit={handleRegister}>
             <div>
               <label className="block text-sm font-bold text-text/80 mb-1">
-                Name
+                {t('name')}
               </label>
               <input 
                 type="text" 
@@ -55,10 +53,9 @@ export const Register = () => {
                 required
               />
             </div>
-
             <div>
               <label className="block text-sm font-bold text-text/80 mb-1">
-                Email
+                {t('email')}
               </label>
               <input 
                 type="email" 
@@ -67,10 +64,9 @@ export const Register = () => {
                 required
               />
             </div>
-
             <div>
               <label className="block text-sm font-bold text-text/80 mb-1">
-                Password
+                {t('password')}
               </label>
               <input 
                 type="password" 
@@ -87,11 +83,8 @@ export const Register = () => {
 
           <div className="mt-6 text-center">
             <p className="text-text/70 font-medium">
-              Already have an account?{' '}
-              <Link 
-                to="/login" 
-                className="text-primary font-bold hover:underline"
-              >
+              {t('alreadyHaveAccount')}{' '}
+              <Link to="/login" className="text-primary font-bold hover:underline">
                 {t('login')}
               </Link>
             </p>

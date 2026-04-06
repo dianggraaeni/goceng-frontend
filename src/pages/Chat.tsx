@@ -65,7 +65,7 @@ export const Chat = () => {
       setIsTyping(false);
       const botResponse: Message = {
         id: (Date.now() + 1).toString(),
-        text: "Oke, dicatat! Pengeluaran Rp 25.000. Sisa saldo kamu sekarang Rp 2.425.000. Hemat-hemat ya! 💸",
+        text: t('botResponse'),
         sender: 'bot',
         time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
       };
@@ -79,8 +79,9 @@ export const Chat = () => {
   };
 
   return (
-    <div className="max-w-3xl mx-auto h-[calc(100vh-8rem)] flex flex-col">
-      <Card className="flex-1 flex flex-col p-0 overflow-hidden border-2 border-orange-100 bg-[#E5DDD5] relative shadow-soft-hover">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 h-[calc(100vh-5rem)] flex flex-col">
+      <div className="max-w-3xl w-full mx-auto h-full flex flex-col">
+        <Card className="flex-1 flex flex-col p-0 overflow-hidden border-2 border-orange-100 bg-[#E5DDD5] relative shadow-soft-hover">
         {/* Chat Header */}
         <div className="bg-surface p-4 border-b-2 border-orange-100 flex items-center gap-4 z-10 shadow-sm">
           <div className="w-12 h-12 bg-primary rounded-full flex items-center justify-center text-white shadow-sm relative">
@@ -90,7 +91,7 @@ export const Chat = () => {
           <div>
             <h2 className="font-heading font-bold text-lg text-accent">Goceng Bot</h2>
             <p className="text-xs text-text/60 font-medium">
-              {isTyping ? <span className="text-primary italic">typing...</span> : 'Online'}
+              {isTyping ? <span className="text-primary italic">{t('typing')}</span> : t('online')}
             </p>
           </div>
         </div>
@@ -190,6 +191,7 @@ export const Chat = () => {
           </form>
         </div>
       </Card>
+      </div>
     </div>
   );
 };

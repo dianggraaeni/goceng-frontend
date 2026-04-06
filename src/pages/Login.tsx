@@ -30,7 +30,7 @@ export const Login = () => {
       >
         <Card className="p-8">
           <div className="flex flex-col items-center mb-8">
-            
+
             {/* LOGO DIGANTI DI SINI */}
             <div className="w-16 h-16 bg-primary rounded-2xl flex items-center justify-center shadow-soft transform rotate-3 mb-4 overflow-hidden">
               <img 
@@ -40,16 +40,14 @@ export const Login = () => {
               />
             </div>
 
-            <h2 className="text-3xl text-accent text-center">Welcome Back!</h2>
-            <p className="text-text/70 mt-2 text-center">
-              Ready to level up your finances?
-            </p>
+            <h2 className="text-3xl text-accent text-center">{t('welcomeBack')}</h2>
+            <p className="text-text/70 mt-2 text-center">{t('readyToLevelUp')}</p>
           </div>
 
           <form className="space-y-4" onSubmit={handleLogin}>
             <div>
               <label className="block text-sm font-bold text-text/80 mb-1">
-                Email
+                {t('email')}
               </label>
               <input 
                 type="email" 
@@ -58,10 +56,9 @@ export const Login = () => {
                 required
               />
             </div>
-
             <div>
               <label className="block text-sm font-bold text-text/80 mb-1">
-                Password
+                {t('password')}
               </label>
               <input 
                 type="password" 
@@ -78,7 +75,7 @@ export const Login = () => {
 
           <div className="mt-6 text-center">
             <p className="text-text/70 font-medium">
-              Don't have an account?{' '}
+              {t('dontHaveAccount')}{' '}
               <Link 
                 to="/register" 
                 className="text-primary font-bold hover:underline"

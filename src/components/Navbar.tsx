@@ -28,15 +28,15 @@ export const Navbar = () => {
         const element = document.getElementById(section);
         if (element) {
           const rect = element.getBoundingClientRect();
-          // If the top of the section is above the middle of the viewport (or a 300px threshold)
-          if (rect.top <= 300) {
+          // If the top of the section is above the middle of the viewport
+          if (rect.top <= window.innerHeight / 2) {
             current = `#${section}`;
           }
         }
       }
 
       // If we are at the very top of the page, set to '/'
-      if (window.scrollY < 100) {
+      if (window.scrollY < 50) {
         current = '/';
       }
 

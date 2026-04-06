@@ -2,8 +2,14 @@ import React, { createContext, useContext, useState, ReactNode } from 'react';
 
 type Language = 'id' | 'en';
 
-// Perbaikan 1: Gunakan Record untuk typing yang lebih ketat pada objek translations
-const translations = {
+interface Translations {
+  [key: string]: {
+    id: string;
+    en: string;
+  };
+}
+
+const translations: Translations = {
   // Navbar
   home: { id: 'Beranda', en: 'Home' },
   features: { id: 'Fitur', en: 'Features' },
@@ -24,6 +30,8 @@ const translations = {
   tryDemo: { id: 'Coba Demo', en: 'Try Demo' },
   
   // Features
+  featSectionTitle: { id: 'Fitur Unggulan GOCENG', en: 'GOCENG Key Features' },
+  featSectionDesc: { id: 'Kelola keuangan jadi lebih mudah, pintar, dan menyenangkan.', en: 'Manage finances easier, smarter, and more fun.' },
   feat1Title: { id: 'Tracking via WhatsApp', en: 'WhatsApp Bot Tracking' },
   feat1Desc: { id: 'Cukup chat untuk catat pengeluaran. Tanpa form ribet!', en: 'Just chat to track expenses. No complicated forms!' },
   feat2Title: { id: 'Insight Keuangan Pintar', en: 'Smart Financial Insights' },
@@ -43,6 +51,24 @@ const translations = {
   featDetail4Title: { id: 'Pantau Keuangan Real-Time', en: 'Monitor Finances Real-Time' },
   featDetail4Desc: { id: 'Dapatkan grafik interaktif yang update otomatis setiap kamu jajan. Pantau sisa budget dan kategori pengeluaranmu biar nggak boncos!', en: 'Get interactive charts that update automatically every time you spend. Monitor your remaining budget and expense categories so you don\'t go broke!' },
   tryNow: { id: 'Coba Sekarang', en: 'Try Now' },
+  automatic: { id: 'Otomatis', en: 'Automatic' },
+  food: { id: 'Makanan', en: 'Food' },
+  remainingBudget: { id: 'Sisa Budget', en: 'Remaining Budget' },
+  analytics: { id: 'Analitik', en: 'Analytics' },
+  chatGoceng: { id: 'Chat Goceng', en: 'Goceng Chat' },
+  chatExample1: { id: 'Makan siang 45rb pake gopay', en: 'Lunch 45k using gopay' },
+  chatExample2: { id: 'Sip! Udah dicatat ya', en: 'Got it! Recorded' },
+  manualRecord: { id: 'Catat Manual', en: 'Manual Record' },
+  categoryFood: { id: 'Kategori: Makanan', en: 'Category: Food' },
+  aiFeature1: { id: 'Atur budget bulan ini', en: 'Set this month budget' },
+  aiFeature2: { id: 'Minta rekomendasi hemat', en: 'Ask for saving tips' },
+  aiFeature3: { id: 'Tanya konsultan', en: 'Ask consultant' },
+  new: { id: 'Baru!', en: 'New!' },
+  flexible: { id: 'Fleksibel', en: 'Flexible' },
+
+  // Why Choose Goceng
+  whyChooseGoceng: { id: 'Kenapa Pilih GOCENG?', en: 'Why Choose GOCENG?' },
+  whyChooseGocengDesc: { id: 'Kelola uang nggak harus membosankan. Kami membuatnya simpel, pintar, dan seru.', en: 'Managing money doesn\'t have to be boring. We make it simple, smart, and fun.' },
 
   // How It Works
   howItWorks: { id: 'Cara Kerjanya', en: 'How It Works' },
@@ -53,9 +79,21 @@ const translations = {
 
   // Dashboard Preview
   dashboardPreview: { id: 'Intip Dasbor GOCENG', en: 'Sneak Peek at GOCENG Dashboard' },
+  dashboardPreviewDesc: { id: 'Dasbor gamifikasi yang cantik menantimu.', en: 'A beautiful, gamified dashboard waiting for you.' },
+  levelUp: { id: 'Naik Level!', en: 'Level Up!' },
+  saverLevel: { id: 'Si Hemat Lvl 5', en: 'Saver Lvl 5' },
 
   // Testimonials
   testimonials: { id: 'Apa Kata Mereka?', en: 'What They Say' },
+  testi1Name: { id: 'Budi S.', en: 'Budi S.' },
+  testi1Role: { id: 'Mahasiswa', en: 'Student' },
+  testi1Text: { id: 'Goceng ngebantu banget buat ngelacak pengeluaran kosan. Bot WA-nya juara!', en: 'Goceng really helps track my dorm expenses. The WA bot is a champion!' },
+  testi2Name: { id: 'Siti A.', en: 'Siti A.' },
+  testi2Role: { id: 'Freelancer', en: 'Freelancer' },
+  testi2Text: { id: 'Laporannya bikin aku sadar ternyata sering banget jajan boba. Sekarang bisa lebih hemat.', en: 'The report made me realize I buy boba too often. Now I can save more.' },
+  testi3Name: { id: 'Andi M.', en: 'Andi M.' },
+  testi3Role: { id: 'Karyawan', en: 'Employee' },
+  testi3Text: { id: 'Fitur gamifikasinya bikin nagih buat nabung. Nggak kerasa udah level 10 aja.', en: 'The gamification feature makes saving addictive. Didn\'t realize I\'m already level 10.' },
   
   // FAQ
   faq: { id: 'Pertanyaan Sering Diajukan', en: 'Frequently Asked Questions' },
@@ -68,12 +106,35 @@ const translations = {
 
   // Blog
   blog: { id: 'Tips & Berita', en: 'Tips & News' },
+  blogDesc: { id: 'Tingkatkan pengetahuan finansialmu.', en: 'Level up your financial knowledge.' },
+  viewAll: { id: 'Lihat Semua', en: 'View All' },
   readMore: { id: 'Baca Selengkapnya', en: 'Read More' },
+  blog1Title: { id: '5 Cara Hemat Anak Kos', en: '5 Saving Tips for Students' },
+  blog1Tag: { id: 'Tips', en: 'Tips' },
+  blog2Title: { id: 'Kenapa Harus Punya Dana Darurat?', en: 'Why You Need an Emergency Fund?' },
+  blog2Tag: { id: 'Edukasi', en: 'Education' },
+  blog3Title: { id: 'Fitur Baru: Gamifikasi GOCENG', en: 'New Feature: GOCENG Gamification' },
+  blog3Tag: { id: 'Update', en: 'Update' },
 
   // Contact
   contactUs: { id: 'Hubungi Kami', en: 'Contact Us' },
   contactDesc: { id: 'Mari perbaiki kebiasaan keuanganmu bersama-sama!', en: 'Let\'s improve your financial habits together!' },
+  contactDesc2: { id: 'Bergabunglah bersama kami dalam membuat keuangan lebih mudah diakses dan menyenangkan bagi semua orang.', en: 'Join us in making finance more accessible and fun for everyone.' },
+  yourName: { id: 'Nama Anda', en: 'Your Name' },
+  yourEmail: { id: 'Email Anda', en: 'Your Email' },
+  yourMessage: { id: 'Pesan Anda', en: 'Your Message' },
   send: { id: 'Kirim Pesan', en: 'Send Message' },
+
+  // Auth
+  joinGoceng: { id: 'Gabung GOCENG!', en: 'Join GOCENG!' },
+  joinDesc: { id: 'Mulai perjalanan finansial serumu hari ini.', en: 'Start your fun financial journey today.' },
+  name: { id: 'Nama', en: 'Name' },
+  email: { id: 'Email', en: 'Email' },
+  password: { id: 'Kata Sandi', en: 'Password' },
+  alreadyHaveAccount: { id: 'Sudah punya akun?', en: 'Already have an account?' },
+  welcomeBack: { id: 'Selamat Datang Kembali!', en: 'Welcome Back!' },
+  readyToLevelUp: { id: 'Siap menaikkan level keuanganmu?', en: 'Ready to level up your finances?' },
+  dontHaveAccount: { id: 'Belum punya akun?', en: 'Don\'t have an account?' },
 
   // Dashboard
   totalBalance: { id: 'Total Saldo', en: 'Total Balance' },
@@ -87,6 +148,23 @@ const translations = {
   amount: { id: 'Jumlah', en: 'Amount' },
   category: { id: 'Kategori', en: 'Category' },
   date: { id: 'Tanggal', en: 'Date' },
+  welcomeUser: { id: 'Selamat datang kembali, Budi! 👋', en: 'Welcome back, Budi! 👋' },
+  streakMsg: { id: 'Kamu sedang dalam 5 hari streak menabung!', en: 'You\'re on a 5-day saving streak!' },
+  streak: { id: 'Streak', en: 'Streak' },
+  days: { id: 'Hari', en: 'Days' },
+  reminderTitle: { id: 'Jangan lupa catat pengeluaran hari ini!', en: 'Don\'t forget to log today\'s expenses!' },
+  reminderDesc: { id: 'Kamu belum mencatat makan siangmu. Yuk catat sekarang biar streak-nya nggak putus!', en: 'You haven\'t logged your lunch. Log it now so you don\'t lose your streak!' },
+  logNow: { id: 'Catat', en: 'Log Now' },
+  monthlyGoalProgress: { id: '70% menuju target bulananmu', en: '70% to your monthly goal' },
+  fromLastMonthUp: { id: '+12% dari bulan lalu', en: '+12% from last month' },
+  fromLastMonthDown: { id: '-5% dari bulan lalu', en: '-5% from last month' },
+  thisWeek: { id: 'Minggu Ini', en: 'This Week' },
+  thisMonth: { id: 'Bulan Ini', en: 'This Month' },
+  catFood: { id: 'Makan & Minum', en: 'Food & Drinks' },
+  catTransport: { id: 'Transportasi', en: 'Transportation' },
+  catShopping: { id: 'Belanja', en: 'Shopping' },
+  catEntertainment: { id: 'Hiburan', en: 'Entertainment' },
+  catOther: { id: 'Lainnya', en: 'Others' },
   
   // Chat
   chatPlaceholder: { id: 'Ketik pesanmu di sini...', en: 'Type your message here...' },
@@ -94,6 +172,9 @@ const translations = {
   quickReply1: { id: 'Catat Pengeluaran', en: 'Log Expense' },
   quickReply2: { id: 'Cek Saldo', en: 'Check Balance' },
   quickReply3: { id: 'Laporan Bulan Ini', en: 'This Month Report' },
+  typing: { id: 'mengetik...', en: 'typing...' },
+  online: { id: 'Online', en: 'Online' },
+  botResponse: { id: 'Oke, dicatat! Pengeluaran Rp 25.000. Sisa saldo kamu sekarang Rp 2.425.000. Hemat-hemat ya! 💸', en: 'Okay, recorded! Expense Rp 25.000. Your remaining balance is Rp 2.425.000. Be frugal! 💸' },
   
   // Gamification
   goodJob: { id: 'Kerja Bagus!', en: 'Good Job!' },
@@ -103,15 +184,25 @@ const translations = {
   // Report
   monthlyReport: { id: 'Laporan Bulanan', en: 'Monthly Report' },
   expenseByCategory: { id: 'Pengeluaran per Kategori', en: 'Expense by Category' },
-} as const; // Memastikan value bersifat read-only dan literal
-
-// Perbaikan 2: Buat type khusus untuk key agar autocomplete jalan
-type TranslationKey = keyof typeof translations;
+  reportTitle: { id: 'Laporan Keuangan 📊', en: 'Financial Report 📊' },
+  savingsGoal: { id: 'Target Tabungan', en: 'Savings Goal' },
+  badgesEarned: { id: 'Lencana Didapat', en: 'Badges Earned' },
+  weeklyOverview: { id: 'Ringkasan Mingguan', en: 'Weekly Overview' },
+  march2026: { id: 'Maret 2026', en: 'March 2026' },
+  february2026: { id: 'Februari 2026', en: 'February 2026' },
+  mon: { id: 'Sen', en: 'Mon' },
+  tue: { id: 'Sel', en: 'Tue' },
+  wed: { id: 'Rab', en: 'Wed' },
+  thu: { id: 'Kam', en: 'Thu' },
+  fri: { id: 'Jum', en: 'Fri' },
+  sat: { id: 'Sab', en: 'Sat' },
+  sun: { id: 'Min', en: 'Sun' },
+};
 
 interface LanguageContextType {
   lang: Language;
   toggleLang: () => void;
-  t: (key: TranslationKey) => string; // Harus me-return string
+  t: (key: keyof typeof translations) => string;
 }
 
 const LanguageContext = createContext<LanguageContextType | undefined>(undefined);
@@ -123,12 +214,10 @@ export const LanguageProvider = ({ children }: { children: ReactNode }) => {
     setLang((prev) => (prev === 'id' ? 'en' : 'id'));
   };
 
-  // Perbaikan 3: Pastikan return value selalu string dengan template literal `${}` atau String()
-  const t = (key: TranslationKey): string => {
-    const translation = translations[key];
-    if (!translation) return String(key);
-    return translation[lang];
-  };
+const t = (key: keyof typeof translations): string => {
+  if (!translations[key]) return String(key);
+  return String(translations[key][lang]);
+};
 
   return (
     <LanguageContext.Provider value={{ lang, toggleLang, t }}>

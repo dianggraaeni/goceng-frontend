@@ -24,13 +24,34 @@ const weeklyData = [
 export const Report = () => {
   const { t } = useLanguage();
 
+  const translatedExpenseData = expenseData.map(item => {
+    let translatedName = item.name;
+    if (item.name === 'Makanan') translatedName = t('catFood');
+    if (item.name === 'Transport') translatedName = t('catTransport');
+    if (item.name === 'Hiburan') translatedName = t('catEntertainment');
+    if (item.name === 'Belanja') translatedName = t('catShopping');
+    return { ...item, name: translatedName };
+  });
+
+  const translatedWeeklyData = weeklyData.map(item => {
+    let translatedName = item.name;
+    if (item.name === 'Sen') translatedName = t('mon');
+    if (item.name === 'Sel') translatedName = t('tue');
+    if (item.name === 'Rab') translatedName = t('wed');
+    if (item.name === 'Kam') translatedName = t('thu');
+    if (item.name === 'Jum') translatedName = t('fri');
+    if (item.name === 'Sab') translatedName = t('sat');
+    if (item.name === 'Min') translatedName = t('sun');
+    return { ...item, name: translatedName };
+  });
+
   return (
-    <div className="space-y-8">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
       <div className="flex justify-between items-center">
-        <h1 className="text-3xl text-accent">Financial Report 📊</h1>
+        <h1 className="text-3xl text-accent">{t('reportTitle')}</h1>
         <select className="bg-surface border-2 border-orange-100 rounded-xl px-4 py-2 font-medium focus:outline-none focus:border-primary shadow-sm">
-          <option>March 2026</option>
-          <option>February 2026</option>
+          <option>{t('march2026')}</option>
+          <option>{t('february2026')}</option>
         </select>
       </div>
 
@@ -41,7 +62,7 @@ export const Report = () => {
             <Target size={28} />
           </div>
           <div>
-            <p className="font-bold text-blue-900 text-sm uppercase tracking-wide">Savings Goal</p>
+            <p className="font-bold text-blue-900 text-sm uppercase tracking-wide">{t('savingsGoal')}</p>
             <p className="font-heading font-bold text-2xl text-blue-950">85%</p>
           </div>
         </Card>
@@ -51,7 +72,7 @@ export const Report = () => {
             <Award size={28} />
           </div>
           <div>
-            <p className="font-bold text-purple-900 text-sm uppercase tracking-wide">Badges Earned</p>
+            <p className="font-bold text-purple-900 text-sm uppercase tracking-wide">{t('badgesEarned')}</p>
             <p className="font-heading font-bold text-2xl text-purple-950">12</p>
           </div>
         </Card>
@@ -75,7 +96,7 @@ export const Report = () => {
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
                 <Pie
-                  data={expenseData}
+                  data={translatedExpenseData}
                   cx="50%"
                   cy="50%"
                   innerRadius={80}
@@ -84,7 +105,7 @@ export const Report = () => {
                   dataKey="value"
                   stroke="none"
                 >
-                  {expenseData.map((entry, index) => (
+                  {translatedExpenseData.map((entry, index) => (
                     <Cell key={`cell-${index}`} fill={entry.color} />
                   ))}
                 </Pie>
@@ -95,7 +116,7 @@ export const Report = () => {
             </ResponsiveContainer>
           </div>
           <div className="grid grid-cols-2 gap-4 mt-4">
-            {expenseData.map((item) => (
+            {translatedExpenseData.map((item) => (
               <div key={item.name} className="flex items-center gap-2">
                 <div className="w-3 h-3 rounded-full" style={{ backgroundColor: item.color }}></div>
                 <span className="text-sm font-medium text-text/80">{item.name}</span>
@@ -106,10 +127,10 @@ export const Report = () => {
 
         {/* Bar Chart */}
         <Card>
-          <h3 className="text-xl mb-6">Weekly Overview</h3>
+          <h3 className="text-xl mb-6">{t('weeklyOverview')}</h3>
           <div className="h-[300px]">
             <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={weeklyData} margin={{ top: 20, right: 0, left: -20, bottom: 0 }}>
+              <BarChart data={translatedWeeklyData} margin={{ top: 20, right: 0, left: -20, bottom: 0 }}>
                 <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f0f0f0" />
                 <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fill: '#888', fontSize: 12 }} dy={10} />
                 <YAxis axisLine={false} tickLine={false} tick={{ fill: '#888', fontSize: 12 }} />

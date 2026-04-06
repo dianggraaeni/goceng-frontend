@@ -15,14 +15,15 @@ export const Landing = () => {
   };
 
   return (
-    <div className="flex flex-col gap-24 py-12 overflow-hidden">
+    <div className="flex flex-col overflow-hidden">
       {/* 1. Hero Section (Upgrade) */}
-      <section className="relative min-h-[80vh] flex items-center">
+      <section className="relative min-h-[80vh] flex items-center py-12">
         {/* Abstract Background Elements */}
         <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-orange-300/30 rounded-full blur-[100px] -z-10"></div>
         <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-red-300/20 rounded-full blur-[80px] -z-10"></div>
 
-        <div className="grid lg:grid-cols-2 gap-12 items-center w-full">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
+          <div className="grid lg:grid-cols-2 gap-12 items-center w-full">
           <motion.div 
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
@@ -95,14 +96,15 @@ export const Landing = () => {
             <motion.div animate={{ y: [0, -20, 0], rotate: [0, -10, 0] }} transition={{ repeat: Infinity, duration: 6 }} className="absolute bottom-10 left-10 w-24 h-24 bg-primary rounded-full -z-10 opacity-30 blur-md"></motion.div>
           </motion.div>
         </div>
+        </div>
       </section>
 
       {/* 2. Features Section */}
       <section id="features" className="py-24 bg-orange-50/30 relative overflow-hidden scroll-mt-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
-            <h2 className="text-4xl text-accent mb-4">Fitur Unggulan GOCENG</h2>
-            <p className="text-text/70 max-w-2xl mx-auto text-lg">Kelola keuangan jadi lebih mudah, pintar, dan menyenangkan.</p>
+            <h2 className="text-4xl text-accent mb-4">{t('featSectionTitle')}</h2>
+            <p className="text-text/70 max-w-2xl mx-auto text-lg">{t('featSectionDesc')}</p>
           </div>
 
           {/* Detailed Features Breakdown */}
@@ -110,24 +112,24 @@ export const Landing = () => {
             {/* Feature 1 */}
             <div className="grid md:grid-cols-2 gap-12 items-center">
               <motion.div initial={{ opacity: 0, x: -30 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} className="space-y-6">
-                <div className="inline-block px-4 py-1.5 bg-orange-100 text-primary font-bold rounded-full text-sm">Fleksibel</div>
+                <div className="inline-block px-4 py-1.5 bg-orange-100 text-primary font-bold rounded-full text-sm">{t('flexible')}</div>
                 <h3 className="text-3xl md:text-4xl font-bold text-accent">{t('featDetail1Title')}</h3>
                 <p className="text-lg text-text/70 font-medium leading-relaxed">{t('featDetail1Desc')}</p>
                 <Button className="gap-2">{t('tryNow')} <ArrowRight size={18} /></Button>
               </motion.div>
               <motion.div initial={{ opacity: 0, x: 30 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} className="relative h-[400px] bg-gradient-to-br from-orange-100 to-red-50 rounded-[2rem] border-2 border-orange-200 overflow-hidden flex items-center justify-center shadow-inner">
                 <div className="absolute top-10 left-10 glass p-4 rounded-2xl shadow-soft animate-float">
-                  <p className="text-sm font-bold text-text/70 mb-2">Chat Goceng</p>
-                  <div className="bg-primary text-white px-4 py-2 rounded-2xl rounded-tl-none text-sm">Makan siang 45rb pake gopay</div>
-                  <div className="bg-white text-text px-4 py-2 rounded-2xl rounded-tr-none text-sm mt-2 border border-orange-100">Sip! Udah dicatat ya 🍔</div>
+                  <p className="text-sm font-bold text-text/70 mb-2">{t('chatGoceng')}</p>
+                  <div className="bg-primary text-white px-4 py-2 rounded-2xl rounded-tl-none text-sm">{t('chatExample1')}</div>
+                  <div className="bg-white text-text px-4 py-2 rounded-2xl rounded-tr-none text-sm mt-2 border border-orange-100">{t('chatExample2')} 🍔</div>
                 </div>
                 <div className="absolute bottom-10 right-10 bg-white p-4 rounded-2xl shadow-soft border-2 border-orange-100 animate-float" style={{ animationDelay: '1s' }}>
                   <div className="flex items-center gap-3 mb-3">
                     <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">📝</div>
-                    <p className="font-bold text-sm">Catat Manual</p>
+                    <p className="font-bold text-sm">{t('manualRecord')}</p>
                   </div>
                   <div className="text-2xl font-bold text-accent mb-1">Rp 45.000</div>
-                  <div className="text-xs text-text/50">Kategori: Makanan</div>
+                  <div className="text-xs text-text/50">{t('categoryFood')}</div>
                 </div>
               </motion.div>
             </div>
@@ -136,12 +138,12 @@ export const Landing = () => {
             <div className="grid md:grid-cols-2 gap-12 items-center">
               <motion.div initial={{ opacity: 0, x: -30 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} className="order-2 md:order-1 relative h-[400px] bg-gradient-to-br from-yellow-100 to-orange-50 rounded-[2rem] border-2 border-yellow-200 overflow-hidden flex items-center justify-center shadow-inner">
                 <div className="w-32 h-32 bg-white rounded-full flex items-center justify-center text-6xl shadow-soft border-4 border-yellow-200 z-10 animate-bounce-slow">🤖</div>
-                <div className="absolute top-1/4 right-10 bg-white px-4 py-2 rounded-full shadow-sm border border-yellow-100 text-sm font-bold text-text/70 animate-float">Atur budget bulan ini ✨</div>
-                <div className="absolute bottom-1/3 left-10 bg-white px-4 py-2 rounded-full shadow-sm border border-yellow-100 text-sm font-bold text-text/70 animate-float" style={{ animationDelay: '0.5s' }}>Minta rekomendasi hemat 💡</div>
-                <div className="absolute bottom-16 right-20 bg-white px-4 py-2 rounded-full shadow-sm border border-yellow-100 text-sm font-bold text-text/70 animate-float" style={{ animationDelay: '1.5s' }}>Tanya konsultan 💬</div>
+                <div className="absolute top-1/4 right-10 bg-white px-4 py-2 rounded-full shadow-sm border border-yellow-100 text-sm font-bold text-text/70 animate-float">{t('aiFeature1')} ✨</div>
+                <div className="absolute bottom-1/3 left-10 bg-white px-4 py-2 rounded-full shadow-sm border border-yellow-100 text-sm font-bold text-text/70 animate-float" style={{ animationDelay: '0.5s' }}>{t('aiFeature2')} 💡</div>
+                <div className="absolute bottom-16 right-20 bg-white px-4 py-2 rounded-full shadow-sm border border-yellow-100 text-sm font-bold text-text/70 animate-float" style={{ animationDelay: '1.5s' }}>{t('aiFeature3')} 💬</div>
               </motion.div>
               <motion.div initial={{ opacity: 0, x: 30 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} className="order-1 md:order-2 space-y-6">
-                <div className="inline-block px-4 py-1.5 bg-red-100 text-red-600 font-bold rounded-full text-sm">Baru!</div>
+                <div className="inline-block px-4 py-1.5 bg-red-100 text-red-600 font-bold rounded-full text-sm">{t('new')}</div>
                 <h3 className="text-3xl md:text-4xl font-bold text-accent">{t('featDetail2Title')}</h3>
                 <p className="text-lg text-text/70 font-medium leading-relaxed">{t('featDetail2Desc')}</p>
                 <Button className="gap-2 bg-yellow-500 hover:bg-yellow-600 text-white border-yellow-500">{t('tryNow')} <ArrowRight size={18} /></Button>
@@ -151,7 +153,7 @@ export const Landing = () => {
             {/* Feature 3 */}
             <div className="grid md:grid-cols-2 gap-12 items-center">
               <motion.div initial={{ opacity: 0, x: -30 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} className="space-y-6">
-                <div className="inline-block px-4 py-1.5 bg-blue-100 text-blue-600 font-bold rounded-full text-sm">Otomatis</div>
+                <div className="inline-block px-4 py-1.5 bg-blue-100 text-blue-600 font-bold rounded-full text-sm">{t('automatic')}</div>
                 <h3 className="text-3xl md:text-4xl font-bold text-accent">{t('featDetail3Title')}</h3>
                 <p className="text-lg text-text/70 font-medium leading-relaxed">{t('featDetail3Desc')}</p>
                 <Button className="gap-2 bg-blue-600 hover:bg-blue-700 text-white border-blue-600">{t('tryNow')} <ArrowRight size={18} /></Button>
@@ -180,18 +182,18 @@ export const Landing = () => {
               <motion.div initial={{ opacity: 0, x: -30 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} className="order-2 md:order-1 relative h-[400px] bg-gradient-to-br from-green-50 to-emerald-50 rounded-[2rem] border-2 border-green-100 overflow-hidden flex items-center justify-center shadow-inner">
                 <div className="absolute top-12 left-12 bg-white p-4 rounded-2xl shadow-soft border border-green-100 animate-float">
                   <PieChart size={48} className="text-green-500 mb-2" />
-                  <p className="text-xs font-bold text-text/50">Makanan</p>
+                  <p className="text-xs font-bold text-text/50">{t('food')}</p>
                   <p className="font-bold text-accent">45%</p>
                 </div>
                 <div className="absolute bottom-12 right-12 bg-white p-4 rounded-2xl shadow-soft border border-green-100 animate-float" style={{ animationDelay: '1s' }}>
                   <TrendingUp size={48} className="text-primary mb-2" />
-                  <p className="text-xs font-bold text-text/50">Sisa Budget</p>
+                  <p className="text-xs font-bold text-text/50">{t('remainingBudget')}</p>
                   <p className="font-bold text-accent">Rp 1.2M</p>
                 </div>
                 <div className="w-32 h-32 rounded-full border-8 border-green-400 border-t-primary border-r-yellow-400 transform rotate-45"></div>
               </motion.div>
               <motion.div initial={{ opacity: 0, x: 30 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} className="order-1 md:order-2 space-y-6">
-                <div className="inline-block px-4 py-1.5 bg-green-100 text-green-700 font-bold rounded-full text-sm">Analitik</div>
+                <div className="inline-block px-4 py-1.5 bg-green-100 text-green-700 font-bold rounded-full text-sm">{t('analytics')}</div>
                 <h3 className="text-3xl md:text-4xl font-bold text-accent">{t('featDetail4Title')}</h3>
                 <p className="text-lg text-text/70 font-medium leading-relaxed">{t('featDetail4Desc')}</p>
                 <Button className="gap-2 bg-green-600 hover:bg-green-700 text-white border-green-600">{t('tryNow')} <ArrowRight size={18} /></Button>
@@ -206,8 +208,8 @@ export const Landing = () => {
         <div className="absolute top-0 right-0 w-64 h-64 bg-primary/5 rounded-full blur-3xl"></div>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
           <div className="text-center mb-16">
-            <h2 className="text-4xl text-accent mb-4">Why Choose GOCENG?</h2>
-            <p className="text-text/70 max-w-2xl mx-auto text-lg">Managing money doesn't have to be boring. We make it simple, smart, and fun.</p>
+            <h2 className="text-4xl text-accent mb-4">{t('whyChooseGoceng')}</h2>
+            <p className="text-text/70 max-w-2xl mx-auto text-lg">{t('whyChooseGocengDesc')}</p>
           </div>
           
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -238,18 +240,19 @@ export const Landing = () => {
       </section>
 
       {/* 4. Dashboard Preview (NEW) */}
-      <section className="py-16 px-8 lg:px-12 bg-white rounded-[3rem] border border-orange-100 relative overflow-hidden shadow-sm">
-        <div className="text-center mb-16">
-          <h2 className="text-4xl text-accent mb-4">{t('dashboardPreview')}</h2>
-          <p className="text-text/70 max-w-2xl mx-auto text-lg">A beautiful, gamified dashboard waiting for you.</p>
-        </div>
+      <section className="py-24 bg-white relative overflow-hidden">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+          <div className="text-center mb-16">
+            <h2 className="text-4xl text-accent mb-4">{t('dashboardPreview')}</h2>
+            <p className="text-text/70 max-w-2xl mx-auto text-lg">{t('dashboardPreviewDesc')}</p>
+          </div>
 
-        <motion.div 
-          initial={{ opacity: 0, y: 40 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          className="relative max-w-5xl mx-auto"
-        >
+          <motion.div 
+            initial={{ opacity: 0, y: 40 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="relative max-w-5xl mx-auto"
+          >
           {/* Decorative background for mockup */}
           <div className="absolute inset-0 bg-gradient-to-r from-orange-200 to-red-200 rounded-[3rem] transform rotate-2 scale-105 opacity-50 blur-sm"></div>
           
@@ -286,7 +289,7 @@ export const Landing = () => {
           >
             <div className="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center text-green-600"><TrendingUp size={20}/></div>
             <div>
-              <p className="text-xs text-text/50 font-bold">Income</p>
+              <p className="text-xs text-text/50 font-bold">{t('income')}</p>
               <p className="font-bold text-green-600">+Rp 500k</p>
             </div>
           </motion.div>
@@ -298,18 +301,20 @@ export const Landing = () => {
           >
             <div className="w-10 h-10 bg-yellow-100 rounded-full flex items-center justify-center text-yellow-600"><Star size={20}/></div>
             <div>
-              <p className="text-xs text-text/50 font-bold">Level Up!</p>
-              <p className="font-bold text-yellow-600">Saver Lvl 5</p>
+              <p className="text-xs text-text/50 font-bold">{t('levelUp')}</p>
+              <p className="font-bold text-yellow-600">{t('saverLevel')}</p>
             </div>
           </motion.div>
         </motion.div>
+        </div>
       </section>
 
       {/* 5. Testimonials (NEW) */}
-      <section className="py-16 px-8 lg:px-12 bg-yellow-100/60 rounded-[3rem] border border-yellow-200 relative overflow-hidden">
-        <div className="text-center mb-16">
-          <h2 className="text-4xl text-accent mb-4">{t('testimonials')}</h2>
-        </div>
+      <section className="py-24 bg-yellow-100/60 relative overflow-hidden">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+          <div className="text-center mb-16">
+            <h2 className="text-4xl text-accent mb-4">{t('testimonials')}</h2>
+          </div>
         
         <div className="grid md:grid-cols-3 gap-8">
           {[
@@ -335,13 +340,15 @@ export const Landing = () => {
             </Card>
           ))}
         </div>
+        </div>
       </section>
 
       {/* 6. FAQ Section (NEW) */}
-      <section id="faq" className="py-16 px-8 lg:px-12 bg-orange-50/50 rounded-[3rem] shadow-sm border border-orange-100 relative overflow-hidden max-w-4xl mx-auto w-full scroll-mt-24">
-        <div className="text-center mb-12">
-          <h2 className="text-4xl text-accent mb-4">{t('faq')}</h2>
-        </div>
+      <section id="faq" className="py-24 bg-orange-50/50 relative overflow-hidden scroll-mt-24">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 w-full">
+          <div className="text-center mb-12">
+            <h2 className="text-4xl text-accent mb-4">{t('faq')}</h2>
+          </div>
         
         <div className="space-y-4">
           {[
@@ -378,24 +385,26 @@ export const Landing = () => {
             </motion.div>
           ))}
         </div>
+        </div>
       </section>
 
       {/* 7. Blog / News Section (NEW) */}
-      <section id="blog" className="py-16 px-8 lg:px-12 bg-red-50/60 rounded-[3rem] border border-red-100 relative overflow-hidden scroll-mt-24">
-        <div className="flex justify-between items-end mb-12">
-          <div>
-            <h2 className="text-4xl text-accent mb-2">{t('blog')}</h2>
-            <p className="text-text/70 text-lg">Level up your financial knowledge.</p>
+      <section id="blog" className="py-24 bg-red-50/60 relative overflow-hidden scroll-mt-24">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+          <div className="flex justify-between items-end mb-12">
+            <div>
+              <h2 className="text-4xl text-accent mb-2">{t('blog')}</h2>
+              <p className="text-text/70 text-lg">{t('blogDesc')}</p>
+            </div>
+            <Button variant="ghost" className="hidden md:flex">{t('viewAll')}</Button>
           </div>
-          <Button variant="ghost" className="hidden md:flex">View All</Button>
-        </div>
-        
-        <div className="grid md:grid-cols-3 gap-8">
-          {[
-            { title: "5 Cara Hemat Anak Kos", img: "bg-orange-200", tag: "Tips" },
-            { title: "Kenapa Harus Punya Dana Darurat?", img: "bg-red-200", tag: "Edukasi" },
-            { title: "Fitur Baru: Gamifikasi GOCENG", img: "bg-yellow-200", tag: "Update" }
-          ].map((post, idx) => (
+          
+          <div className="grid md:grid-cols-3 gap-8">
+            {[
+              { title: t('blog1Title'), img: "bg-orange-200", tag: t('blog1Tag') },
+              { title: t('blog2Title'), img: "bg-red-200", tag: t('blog2Tag') },
+              { title: t('blog3Title'), img: "bg-yellow-200", tag: t('blog3Tag') }
+            ].map((post, idx) => (
             <Card key={idx} hoverable className="p-0 overflow-hidden flex flex-col">
               <div className={`h-48 ${post.img} relative`}>
                 <div className="absolute top-4 left-4 bg-white/80 backdrop-blur-sm px-3 py-1 rounded-full text-xs font-bold text-primary">
@@ -410,14 +419,15 @@ export const Landing = () => {
               </div>
             </Card>
           ))}
+          </div>
         </div>
       </section>
 
       {/* 8. Contact Section (NEW) */}
-      <section id="contact" className="py-16 px-8 lg:px-12 bg-gradient-to-br from-orange-100 to-orange-50 rounded-[3rem] border border-orange-200 relative overflow-hidden scroll-mt-24">
+      <section id="contact" className="py-24 bg-gradient-to-br from-orange-100 to-orange-50 relative overflow-hidden scroll-mt-24">
         <div className="absolute top-0 right-0 w-full h-full bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-[0.03] -z-10"></div>
         
-        <div className="max-w-6xl mx-auto grid md:grid-cols-2 gap-12 items-center px-4 sm:px-6 lg:px-8">
+        <div className="max-w-6xl mx-auto grid md:grid-cols-2 gap-12 items-center px-4 sm:px-6 lg:px-8 relative z-10">
           {/* Left Side */}
           <motion.div 
             initial={{ opacity: 0, x: -30 }}
@@ -431,7 +441,7 @@ export const Landing = () => {
             </div>
             
             <p className="text-lg text-text/70 font-medium max-w-md leading-relaxed">
-              {t('contactDesc')} Bergabunglah bersama kami dalam membuat keuangan lebih mudah diakses dan menyenangkan bagi semua orang.
+              {t('contactDesc')} {t('contactDesc2')}
             </p>
             
             <div className="flex gap-4">
@@ -459,20 +469,20 @@ export const Landing = () => {
                 <div>
                   <input 
                     type="text" 
-                    placeholder="Nama Anda" 
+                    placeholder={t('yourName')} 
                     className="w-full bg-orange-50/50 border-2 border-orange-100 rounded-xl px-4 py-3 focus:outline-none focus:border-primary font-medium transition-colors"
                   />
                 </div>
                 <div>
                   <input 
                     type="email" 
-                    placeholder="Email Anda" 
+                    placeholder={t('yourEmail')} 
                     className="w-full bg-orange-50/50 border-2 border-orange-100 rounded-xl px-4 py-3 focus:outline-none focus:border-primary font-medium transition-colors"
                   />
                 </div>
                 <div>
                   <textarea 
-                    placeholder="Pesan Anda" 
+                    placeholder={t('yourMessage')} 
                     rows={4}
                     className="w-full bg-orange-50/50 border-2 border-orange-100 rounded-xl px-4 py-3 focus:outline-none focus:border-primary font-medium transition-colors resize-none"
                   ></textarea>

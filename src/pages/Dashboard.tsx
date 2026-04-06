@@ -27,12 +27,12 @@ export const Dashboard = () => {
   const [showAddForm, setShowAddForm] = useState(false);
 
   return (
-    <div className="space-y-8">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
       {/* Header & Gamification */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
         <div>
-          <h1 className="text-3xl text-accent">Welcome back, Budi! 👋</h1>
-          <p className="text-text/70 font-medium mt-1">You're on a 5-day saving streak!</p>
+          <h1 className="text-3xl text-accent">{t('welcomeUser')}</h1>
+          <p className="text-text/70 font-medium mt-1">{t('streakMsg')}</p>
         </div>
         
         <div className="flex gap-4">
@@ -41,8 +41,8 @@ export const Dashboard = () => {
               <Flame size={20} className="fill-primary" />
             </div>
             <div>
-              <p className="text-xs font-bold text-text/60 uppercase tracking-wider">Streak</p>
-              <p className="font-heading font-bold text-lg text-accent">5 Days</p>
+              <p className="text-xs font-bold text-text/60 uppercase tracking-wider">{t('streak')}</p>
+              <p className="font-heading font-bold text-lg text-accent">5 {t('days')}</p>
             </div>
           </Card>
           <Card className="py-3 px-5 flex items-center gap-3 bg-yellow-50 border-yellow-200">
@@ -67,10 +67,10 @@ export const Dashboard = () => {
           <Bell size={20} />
         </div>
         <div className="flex-1">
-          <h4 className="font-bold text-accent">Jangan lupa catat pengeluaran hari ini!</h4>
-          <p className="text-sm text-text/70">Kamu belum mencatat makan siangmu. Yuk catat sekarang biar streak-nya nggak putus!</p>
+          <h4 className="font-bold text-accent">{t('reminderTitle')}</h4>
+          <p className="text-sm text-text/70">{t('reminderDesc')}</p>
         </div>
-        <Button size="sm" onClick={() => setShowAddForm(true)}>Catat</Button>
+        <Button size="sm" onClick={() => setShowAddForm(true)}>{t('logNow')}</Button>
       </motion.div>
 
       {/* Overview Cards */}
@@ -85,7 +85,7 @@ export const Dashboard = () => {
             <div className="w-full bg-black/10 rounded-full h-2 mb-2">
               <div className="bg-white h-2 rounded-full" style={{ width: '70%' }}></div>
             </div>
-            <p className="text-sm text-orange-100">70% to your monthly goal</p>
+            <p className="text-sm text-orange-100">{t('monthlyGoalProgress')}</p>
           </div>
         </Card>
 
@@ -99,7 +99,7 @@ export const Dashboard = () => {
               <TrendingUp size={24} />
             </div>
           </div>
-          <p className="text-sm text-text/60 mt-4">+12% from last month</p>
+          <p className="text-sm text-text/60 mt-4">{t('fromLastMonthUp')}</p>
         </Card>
 
         <Card hoverable className="flex flex-col justify-between">
@@ -112,7 +112,7 @@ export const Dashboard = () => {
               <TrendingDown size={24} />
             </div>
           </div>
-          <p className="text-sm text-text/60 mt-4">-5% from last month</p>
+          <p className="text-sm text-text/60 mt-4">{t('fromLastMonthDown')}</p>
         </Card>
       </div>
 
@@ -122,8 +122,8 @@ export const Dashboard = () => {
           <div className="flex justify-between items-center mb-6">
             <h3 className="text-xl">{t('monthlyReport')}</h3>
             <select className="bg-background border-2 border-orange-100 rounded-xl px-4 py-2 font-medium focus:outline-none focus:border-primary">
-              <option>This Week</option>
-              <option>This Month</option>
+              <option>{t('thisWeek')}</option>
+              <option>{t('thisMonth')}</option>
             </select>
           </div>
           <div className="h-[300px] w-full">
@@ -152,7 +152,7 @@ export const Dashboard = () => {
         <Card className="flex flex-col">
           <div className="flex justify-between items-center mb-6">
             <h3 className="text-xl">{t('recentTransactions')}</h3>
-            <button className="text-primary font-bold text-sm hover:underline">View All</button>
+            <button className="text-primary font-bold text-sm hover:underline">{t('viewAll')}</button>
           </div>
           
           <div className="space-y-4 flex-1">
@@ -225,11 +225,11 @@ export const Dashboard = () => {
                   <div>
                     <label className="block text-sm font-bold text-text/80 mb-1">{t('category')}</label>
                     <select className="w-full bg-background border-2 border-orange-100 rounded-xl px-4 py-3 focus:outline-none focus:border-primary font-medium transition-colors">
-                      <option>Makan & Minum</option>
-                      <option>Transportasi</option>
-                      <option>Belanja</option>
-                      <option>Hiburan</option>
-                      <option>Lainnya</option>
+                      <option>{t('catFood')}</option>
+                      <option>{t('catTransport')}</option>
+                      <option>{t('catShopping')}</option>
+                      <option>{t('catEntertainment')}</option>
+                      <option>{t('catOther')}</option>
                     </select>
                   </div>
 
