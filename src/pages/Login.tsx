@@ -1,13 +1,25 @@
 import React from 'react';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { useAuth } from '@/contexts/AuthContext';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { motion } from 'motion/react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { Wallet } from 'lucide-react';
 
 export const Login = () => {
   const { t } = useLanguage();
+  const { login } = useAuth();
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  const from = location.state?.from?.pathname || "/dashboard";
+
+  const handleLogin = (e: React.FormEvent) => {
+    e.preventDefault();
+    login();
+    navigate(from, { replace: true });
+  };
 
   return (
     <div className="min-h-[80vh] flex items-center justify-center">
@@ -25,13 +37,14 @@ export const Login = () => {
             <p className="text-text/70 mt-2 text-center">Ready to level up your finances?</p>
           </div>
 
-          <form className="space-y-4" onSubmit={(e) => e.preventDefault()}>
+          <form className="space-y-4" onSubmit={handleLogin}>
             <div>
               <label className="block text-sm font-bold text-text/80 mb-1">Email</label>
               <input 
                 type="email" 
                 className="w-full bg-background border-2 border-orange-100 rounded-xl px-4 py-3 focus:outline-none focus:border-primary font-medium transition-colors"
                 placeholder="budi@example.com"
+                required
               />
             </div>
             <div>
@@ -40,10 +53,11 @@ export const Login = () => {
                 type="password" 
                 className="w-full bg-background border-2 border-orange-100 rounded-xl px-4 py-3 focus:outline-none focus:border-primary font-medium transition-colors"
                 placeholder="••••••••"
+                required
               />
             </div>
             
-            <Button className="w-full mt-6" size="lg">
+            <Button className="w-full mt-6" size="lg" type="submit">
               {t('login')}
             </Button>
           </form>

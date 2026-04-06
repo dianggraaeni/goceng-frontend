@@ -1,1 +1,41 @@
 @import "tailwindcss";
+
+@theme {
+  --color-primary: #F97316;
+  --color-accent: #761A00;
+  --color-background: #FAFAFA;
+  --color-surface: #FFFFFF;
+  --color-border: #FFB781;
+  --color-text: #390000;
+
+  --font-sans: "Montserrat", ui-sans-serif, system-ui, sans-serif;
+  --font-heading: "Poppins", ui-sans-serif, system-ui, sans-serif;
+
+  --radius-xl: 1rem;
+  --radius-2xl: 1.5rem;
+  --radius-3xl: 2rem;
+
+  --shadow-soft: 0 8px 30px rgba(249, 115, 22, 0.08);
+  --shadow-soft-hover: 0 12px 40px rgba(249, 115, 22, 0.15);
+}
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+  body {
+    @apply bg-background text-text font-sans antialiased overflow-x-hidden;
+  }
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-heading font-bold;
+  }
+}
+
+@layer utilities {
+  .glass {
+    @apply bg-white/70 backdrop-blur-lg border border-white/50 shadow-soft;
+  }
+  .glass-dark {
+    @apply bg-accent/80 backdrop-blur-lg border border-white/10 shadow-soft;
+  }
+}
