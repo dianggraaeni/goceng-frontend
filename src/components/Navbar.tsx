@@ -55,7 +55,11 @@ export const Navbar = () => {
     return () => window.removeEventListener('scroll', handleScroll);
   }, [location.pathname, location.hash]);
 
-  const navLinks = [
+  const navLinks = isAuthenticated ? [
+    { path: '/dashboard', label: t('dashboard') },
+    { path: '/chat', label: t('chat') },
+    { path: '/report', label: t('report') },
+  ] : [
     { path: '/', label: t('home') },
     { path: '#features', label: t('features') },
     { path: '#faq', label: t('faqNav') },
