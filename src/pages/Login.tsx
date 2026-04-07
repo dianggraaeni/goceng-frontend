@@ -17,8 +17,8 @@ export const Login = () => {
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
-    login();
-    navigate(from, { replace: true });
+    // Redirect to backend OAuth route which forwards to Google Consent Screen
+    window.location.href = "http://localhost:3001/v1/auth/google";
   };
 
   return (
@@ -68,8 +68,9 @@ export const Login = () => {
               />
             </div>
             
-            <Button className="w-full mt-6" size="lg" type="submit">
-              {t('login')}
+            <Button className="w-full mt-6 bg-white text-black hover:bg-gray-100 flex items-center justify-center gap-2" size="lg" type="button" onClick={handleLogin}>
+              <img src="https://www.svgrepo.com/show/475656/google-color.svg" alt="Google" className="w-5 h-5" />
+              {t('login')} with Google
             </Button>
           </form>
 
