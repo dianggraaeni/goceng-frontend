@@ -8,7 +8,7 @@ import { Dashboard } from './pages/Dashboard';
 import { Chat } from './pages/Chat';
 import { Report } from './pages/Report';
 import { Login } from './pages/Login';
-import { Register } from './pages/Register';
+
 import { ProtectedRoute } from './components/ProtectedRoute';
 
 export default function App() {
@@ -20,7 +20,6 @@ export default function App() {
             <Route path="/" element={<Layout />}>
               <Route index element={<Landing />} />
               <Route path="login" element={<Login />} />
-              <Route path="register" element={<Register />} />
               
               {/* Protected Routes */}
               <Route path="dashboard" element={
