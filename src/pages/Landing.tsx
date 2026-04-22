@@ -136,12 +136,26 @@ export const Landing = () => {
 
             {/* Feature 2 */}
             <div className="grid md:grid-cols-2 gap-12 items-center">
-              <motion.div initial={{ opacity: 0, x: -30 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} className="order-2 md:order-1 relative h-[400px] bg-gradient-to-br from-yellow-100 to-orange-50 rounded-[2rem] border-2 border-yellow-200 overflow-hidden flex items-center justify-center shadow-inner">
-                <div className="w-32 h-32 bg-white rounded-full flex items-center justify-center text-6xl shadow-soft border-4 border-yellow-200 z-10 animate-bounce-slow">🤖</div>
-                <div className="absolute top-1/4 right-10 bg-white px-4 py-2 rounded-full shadow-sm border border-yellow-100 text-sm font-bold text-text/70 animate-float">{t('aiFeature1')} ✨</div>
-                <div className="absolute bottom-1/3 left-10 bg-white px-4 py-2 rounded-full shadow-sm border border-yellow-100 text-sm font-bold text-text/70 animate-float" style={{ animationDelay: '0.5s' }}>{t('aiFeature2')} 💡</div>
-                <div className="absolute bottom-16 right-20 bg-white px-4 py-2 rounded-full shadow-sm border border-yellow-100 text-sm font-bold text-text/70 animate-float" style={{ animationDelay: '1.5s' }}>{t('aiFeature3')} 💬</div>
+              <motion.div 
+                initial={{ opacity: 0, x: -30 }} 
+                whileInView={{ opacity: 1, x: 0 }} 
+                viewport={{ once: true }} 
+                className="order-2 md:order-1 relative h-[400px] bg-gradient-to-br from-yellow-100 to-orange-50 rounded-[2rem] border-2 border-yellow-200 overflow-hidden flex items-center justify-center shadow-inner"
+              >
+                {/* BAGIAN YANG DIUBAH: Ganti emoji dengan tag img */}
+                <div className="w-32 h-32 bg-white rounded-full flex items-center justify-center shadow-soft border-4 border-yellow-200 z-10 animate-bounce-slow overflow-hidden">
+                  <img 
+                    src="/robot-ai.png"  // Ganti dengan path gambar Anda
+                    alt="AI Robot Icon"
+                    className="w-40 h-35 object-contain" // Atur ukuran gambar di sini
+                  />
+                </div>
+                
+                <div className="absolute top-1/4 right-10 bg-white px-4 py-2 rounded-full shadow-sm border border-yellow-100 text-sm font-bold text-text/70 animate-float">{t('aiFeature1')}</div>
+                <div className="absolute bottom-1/3 left-10 bg-white px-4 py-2 rounded-full shadow-sm border border-yellow-100 text-sm font-bold text-text/70 animate-float" style={{ animationDelay: '0.5s' }}>{t('aiFeature2')}</div>
+                <div className="absolute bottom-16 right-20 bg-white px-4 py-2 rounded-full shadow-sm border border-yellow-100 text-sm font-bold text-text/70 animate-float" style={{ animationDelay: '1.5s' }}>{t('aiFeature3')}</div>
               </motion.div>
+
               <motion.div initial={{ opacity: 0, x: 30 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} className="order-1 md:order-2 space-y-6">
                 <div className="inline-block px-4 py-1.5 bg-red-100 text-red-600 font-bold rounded-full text-sm">{t('new')}</div>
                 <h3 className="text-3xl md:text-4xl font-bold text-accent">{t('featDetail2Title')}</h3>
@@ -149,7 +163,6 @@ export const Landing = () => {
                 <Button className="gap-2 bg-yellow-500 hover:bg-yellow-600 text-white border-yellow-500">{t('tryNow')} <ArrowRight size={18} /></Button>
               </motion.div>
             </div>
-
             {/* Feature 3 */}
             <div className="grid md:grid-cols-2 gap-12 items-center">
               <motion.div initial={{ opacity: 0, x: -30 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} className="space-y-6">

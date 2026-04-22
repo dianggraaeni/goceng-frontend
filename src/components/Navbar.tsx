@@ -13,9 +13,26 @@ export const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [activeSection, setActiveSection] = useState('/');
 
+  const isHomePage = location.pathname === '/';
+
+  // --- LOGIKA PERBAIKAN: SCROLL KE SECTION DARI HALAMAN LAIN ---
+  useEffect(() => {
+    // Jika ada hash di URL (misal: #features) dan kita berada di home
+    if (isHomePage && location.hash) {
+      const id = location.hash.replace('#', '');
+      const element = document.getElementById(id);
+      
+      if (element) {
+        // Berikan sedikit delay agar browser selesai render komponen Landing
+        setTimeout(() => {
+          element.scrollIntoView({ behavior: 'smooth' });
+        }, 100);
+      }
+    }
+  }, [location.pathname, location.hash, isHomePage]);
+
   useEffect(() => {
     const handleScroll = () => {
-      // Only apply scroll spy on the home page
       if (location.pathname !== '/') {
         setActiveSection(location.pathname);
         return;
@@ -28,19 +45,16 @@ export const Navbar = () => {
         const element = document.getElementById(section);
         if (element) {
           const rect = element.getBoundingClientRect();
-          // If the top of the section is above the middle of the viewport
           if (rect.top <= window.innerHeight / 2) {
             current = `#${section}`;
           }
         }
       }
 
-      // If we are at the very top of the page, set to '/'
       if (window.scrollY < 50) {
         current = '/';
       }
 
-      // If we are at the bottom of the page, set to the last section
       if ((window.innerHeight + Math.round(window.scrollY)) >= document.body.offsetHeight - 100) {
         current = '#contact';
       }
@@ -49,11 +63,10 @@ export const Navbar = () => {
     };
 
     window.addEventListener('scroll', handleScroll, { passive: true });
-    // Initial check
     handleScroll();
 
     return () => window.removeEventListener('scroll', handleScroll);
-  }, [location.pathname, location.hash]);
+  }, [location.pathname]);
 
   const navLinks = isAuthenticated ? [
     { path: '/dashboard', label: t('dashboard') },
@@ -61,10 +74,10 @@ export const Navbar = () => {
     { path: '/report', label: t('report') },
   ] : [
     { path: '/', label: t('home') },
-    { path: '#features', label: t('features') },
-    { path: '#faq', label: t('faqNav') },
-    { path: '#blog', label: t('news') },
-    { path: '#contact', label: t('contact') },
+    { path: isHomePage ? '#features' : '/#features', label: t('features') },
+    { path: isHomePage ? '#faq' : '/#faq', label: t('faqNav') },
+    { path: isHomePage ? '#blog' : '/#blog', label: t('news') },
+    { path: isHomePage ? '#contact' : '/#contact', label: t('contact') },
   ];
 
   return (
@@ -82,11 +95,12 @@ export const Navbar = () => {
             <div className="flex gap-6">
               {navLinks.map((link) => {
                 const isActive = activeSection === link.path;
-                return link.path.startsWith('#') ? (
+                const isAnchorOnHome = link.path.startsWith('#') && isHomePage;
+
+                return isAnchorOnHome ? (
                   <a
                     key={link.path}
                     href={link.path}
-                    onClick={() => setActiveSection(link.path)}
                     className={`font-heading font-semibold text-sm transition-colors ${
                       isActive ? 'text-primary' : 'text-text/70 hover:text-primary'
                     }`}
@@ -97,7 +111,9 @@ export const Navbar = () => {
                   <Link
                     key={link.path}
                     to={link.path}
-                    onClick={() => { setActiveSection(link.path); window.scrollTo(0, 0); }}
+                    onClick={() => {
+                      if (!link.path.includes('#')) window.scrollTo(0, 0);
+                    }}
                     className={`font-heading font-semibold text-sm transition-colors ${
                       isActive ? 'text-primary' : 'text-text/70 hover:text-primary'
                     }`}
@@ -161,7 +177,9 @@ export const Navbar = () => {
             <div className="px-4 pt-2 pb-6 space-y-4">
               {navLinks.map((link) => {
                 const isActive = activeSection === link.path;
-                return link.path.startsWith('#') ? (
+                const isAnchorOnHome = link.path.startsWith('#') && isHomePage;
+
+                return isAnchorOnHome ? (
                   <a
                     key={link.path}
                     href={link.path}
@@ -176,7 +194,10 @@ export const Navbar = () => {
                   <Link
                     key={link.path}
                     to={link.path}
-                    onClick={() => { setIsOpen(false); window.scrollTo(0, 0); }}
+                    onClick={() => {
+                      if (!link.path.includes('#')) window.scrollTo(0, 0);
+                      setIsOpen(false);
+                    }}
                     className={`block font-heading font-semibold text-lg py-2 ${
                       isActive ? 'text-primary' : 'text-text/70'
                     }`}

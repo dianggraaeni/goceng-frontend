@@ -61,7 +61,7 @@ const translations: Translations = {
   manualRecord: { id: 'Catat Manual', en: 'Manual Record' },
   categoryFood: { id: 'Kategori: Makanan', en: 'Category: Food' },
   aiFeature1: { id: 'Atur budget bulan ini', en: 'Set this month budget' },
-  aiFeature2: { id: 'Minta rekomendasi hemat', en: 'Ask for saving tips' },
+  aiFeature2: { id: 'Rekomendasi hemat', en: 'Saving tips' },
   aiFeature3: { id: 'Tanya konsultan', en: 'Ask consultant' },
   new: { id: 'Baru!', en: 'New!' },
   flexible: { id: 'Fleksibel', en: 'Flexible' },

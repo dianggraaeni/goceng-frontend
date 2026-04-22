@@ -1,11 +1,13 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { useAuth } from '@/contexts/AuthContext'; // Import AuthContext
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { motion, AnimatePresence } from 'motion/react';
 import { Wallet, TrendingUp, TrendingDown, Target, Award, Plus, Flame, Bell, X } from 'lucide-react';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 
+// Mock data untuk chart (bisa diupdate nanti dari API)
 const mockData = [
   { name: 'Mon', balance: 4000 },
   { name: 'Tue', balance: 3000 },
@@ -16,22 +18,58 @@ const mockData = [
   { name: 'Sun', balance: 3490 },
 ];
 
-const recentTransactions = [
-  { id: 1, title: 'Makan Siang', amount: -25000, type: 'expense', icon: '🍔', date: 'Today, 12:30' },
-  { id: 2, title: 'Gaji Freelance', amount: 500000, type: 'income', icon: '💰', date: 'Yesterday, 09:00' },
-  { id: 3, title: 'Kopi', amount: -15000, type: 'expense', icon: '☕', date: 'Yesterday, 15:00' },
-];
-
 export const Dashboard = () => {
   const { t } = useLanguage();
+  const { user } = useAuth(); // Ambil data user dari Google Login
   const [showAddForm, setShowAddForm] = useState(false);
+  
+  // State untuk menyimpan data finansial asli
+  const [financials, setFinancials] = useState({
+    totalBalance: 0,
+    income: 0,
+    expense: 0,
+    recentTransactions: []
+  });
+
+  // Fungsi format Rupiah
+  const formatCurrency = (amount: number) => {
+    return new Intl.NumberFormat('id-ID', {
+      style: 'currency',
+      currency: 'IDR',
+      maximumFractionDigits: 0,
+    }).format(amount);
+  };
+
+  // Efek untuk mengambil data dari backend
+  useEffect(() => {
+    const fetchDashboardData = async () => {
+      try {
+        const response = await fetch('http://localhost:3001/v1/dashboard', {
+          headers: {
+            'Authorization': `Bearer ${localStorage.getItem('token')}`
+          }
+        });
+        const result = await response.json();
+        if (result.success) {
+          setFinancials(result.data);
+        }
+      } catch (error) {
+        console.error("Gagal mengambil data dashboard:", error);
+      }
+    };
+
+    fetchDashboardData();
+  }, []);
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
       {/* Header & Gamification */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
         <div>
-          <h1 className="text-3xl text-accent">{t('welcomeUser')}</h1>
+          {/* GANTI: Menggunakan nama dari Google User */}
+          <h1 className="text-3xl text-accent">
+            {t('welcomeBack')}, {user?.name?.split(' ')[0] || 'User'}! 👋
+          </h1>
           <p className="text-text/70 font-medium mt-1">{t('streakMsg')}</p>
         </div>
         
@@ -81,7 +119,8 @@ export const Dashboard = () => {
           </div>
           <div className="relative z-10">
             <p className="font-medium text-orange-100">{t('totalBalance')}</p>
-            <h2 className="text-4xl mt-2 mb-6">Rp 2.450.000</h2>
+            {/* GANTI: Menggunakan saldo dari backend */}
+            <h2 className="text-4xl mt-2 mb-6">{formatCurrency(financials.totalBalance || 0)}</h2>
             <div className="w-full bg-black/10 rounded-full h-2 mb-2">
               <div className="bg-white h-2 rounded-full" style={{ width: '70%' }}></div>
             </div>
@@ -93,7 +132,8 @@ export const Dashboard = () => {
           <div className="flex justify-between items-start">
             <div>
               <p className="font-medium text-text/60">{t('income')}</p>
-              <h3 className="text-2xl text-green-600 mt-1">Rp 3.500.000</h3>
+              {/* GANTI: Menggunakan pemasukan asli */}
+              <h3 className="text-2xl text-green-600 mt-1">{formatCurrency(financials.income || 0)}</h3>
             </div>
             <div className="w-12 h-12 bg-green-100 rounded-2xl flex items-center justify-center text-green-600">
               <TrendingUp size={24} />
@@ -106,7 +146,8 @@ export const Dashboard = () => {
           <div className="flex justify-between items-start">
             <div>
               <p className="font-medium text-text/60">{t('expense')}</p>
-              <h3 className="text-2xl text-red-600 mt-1">Rp 1.050.000</h3>
+              {/* GANTI: Menggunakan pengeluaran asli */}
+              <h3 className="text-2xl text-red-600 mt-1">{formatCurrency(financials.expense || 0)}</h3>
             </div>
             <div className="w-12 h-12 bg-red-100 rounded-2xl flex items-center justify-center text-red-600">
               <TrendingDown size={24} />
@@ -155,23 +196,28 @@ export const Dashboard = () => {
             <button className="text-primary font-bold text-sm hover:underline">{t('viewAll')}</button>
           </div>
           
-          <div className="space-y-4 flex-1">
-            {recentTransactions.map((tx) => (
-              <div key={tx.id} className="flex items-center justify-between p-3 hover:bg-orange-50 rounded-2xl transition-colors cursor-pointer">
-                <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 bg-surface border-2 border-orange-100 shadow-sm rounded-2xl flex items-center justify-center text-xl">
-                    {tx.icon}
+          <div className="space-y-4 flex-1 overflow-y-auto max-h-[400px]">
+            {/* GANTI: Melakukan mapping dari data asli jika ada, jika tidak pakai list kosong */}
+            {financials.recentTransactions.length > 0 ? (
+              financials.recentTransactions.map((tx: any) => (
+                <div key={tx.id} className="flex items-center justify-between p-3 hover:bg-orange-50 rounded-2xl transition-colors cursor-pointer">
+                  <div className="flex items-center gap-4">
+                    <div className="w-12 h-12 bg-surface border-2 border-orange-100 shadow-sm rounded-2xl flex items-center justify-center text-xl">
+                      {tx.icon || '💰'}
+                    </div>
+                    <div>
+                      <p className="font-bold text-text">{tx.title}</p>
+                      <p className="text-xs text-text/50 font-medium">{tx.date}</p>
+                    </div>
                   </div>
-                  <div>
-                    <p className="font-bold text-text">{tx.title}</p>
-                    <p className="text-xs text-text/50 font-medium">{tx.date}</p>
-                  </div>
+                  <p className={`font-bold ${tx.type === 'income' ? 'text-green-600' : 'text-text'}`}>
+                    {tx.type === 'income' ? '+' : ''}{formatCurrency(tx.amount)}
+                  </p>
                 </div>
-                <p className={`font-bold ${tx.type === 'income' ? 'text-green-600' : 'text-text'}`}>
-                  {tx.type === 'income' ? '+' : ''}Rp {Math.abs(tx.amount).toLocaleString('id-ID')}
-                </p>
-              </div>
-            ))}
+              ))
+            ) : (
+              <div className="text-center py-8 text-text/50">Belum ada transaksi</div>
+            )}
           </div>
 
           <Button className="w-full mt-6 gap-2" onClick={() => setShowAddForm(true)}>
