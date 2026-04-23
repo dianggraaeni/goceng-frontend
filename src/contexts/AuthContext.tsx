@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, ReactNode, useEffect } from 'react';
+import { buildApiUrl } from '@/lib/api';
 
 // 1. Definisikan struktur data User
 interface User {
@@ -6,6 +7,7 @@ interface User {
   name: string;
   email: string;
   avatar?: string;
+  profilePicture?: string | null;
 }
 
 // 2. Tambahkan 'user' ke dalam tipe Context
@@ -27,19 +29,26 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   // Fungsi untuk mengambil profil user dari backend
   const fetchUserProfile = async (token: string) => {
     try {
-      const response = await fetch('http://localhost:3001/v1/auth/me', {
+      const response = await fetch(buildApiUrl('/auth/me'), {
         headers: {
           'Authorization': `Bearer ${token}`
         }
       });
-      const result = await response.json();
-      if (result.success) {
-        setUser(result.data);
-        setIsAuthenticated(true);
-      } else {
-        // Jika token tidak valid/expired
-        logout();
+
+      if (!response.ok) {
+        throw new Error('Failed to fetch authenticated user');
       }
+
+      const result = await response.json();
+
+      setUser({
+        id: result.id,
+        name: result.name,
+        email: result.email,
+        avatar: result.profilePicture || undefined,
+        profilePicture: result.profilePicture || null,
+      });
+      setIsAuthenticated(true);
     } catch (error) {
       console.error("Error fetching profile:", error);
       logout();

@@ -4,13 +4,14 @@ import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { motion } from 'motion/react';
 import { Link } from 'react-router-dom';
+import { buildApiUrl } from '@/lib/api';
 
 export const Login = () => {
   const { t } = useLanguage();
 
   const handleGoogleAuth = () => {
     // Langsung arahkan ke backend OAuth
-    window.location.href = "http://localhost:3001/v1/auth/google";
+    window.location.href = buildApiUrl('/auth/google');
   };
 
   return (

@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/Button';
 import { motion, AnimatePresence } from 'motion/react';
 import { Wallet, TrendingUp, TrendingDown, Target, Award, Plus, Flame, Bell, X } from 'lucide-react';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import { buildApiUrl } from '@/lib/api';
 
 // Mock data untuk chart (bisa diupdate nanti dari API)
 const mockData = [
@@ -26,8 +27,9 @@ export const Dashboard = () => {
   // State untuk menyimpan data finansial asli
   const [financials, setFinancials] = useState({
     totalBalance: 0,
-    income: 0,
-    expense: 0,
+    monthlyIncome: 0,
+    monthlyExpense: 0,
+    cashFlowByWeek: [] as Array<{ week: number; income: number; expense: number }>,
     recentTransactions: []
   });
 
@@ -44,15 +46,24 @@ export const Dashboard = () => {
   useEffect(() => {
     const fetchDashboardData = async () => {
       try {
-        const response = await fetch('http://localhost:3001/v1/dashboard', {
+        const response = await fetch(buildApiUrl('/dashboard/summary'), {
           headers: {
             'Authorization': `Bearer ${localStorage.getItem('token')}`
           }
         });
-        const result = await response.json();
-        if (result.success) {
-          setFinancials(result.data);
+
+        if (!response.ok) {
+          throw new Error('Failed to fetch dashboard summary');
         }
+
+        const result = await response.json();
+        setFinancials({
+          totalBalance: result.totalBalance || 0,
+          monthlyIncome: result.monthlyIncome || 0,
+          monthlyExpense: result.monthlyExpense || 0,
+          cashFlowByWeek: Array.isArray(result.cashFlowByWeek) ? result.cashFlowByWeek : [],
+          recentTransactions: Array.isArray(result.recentTransactions) ? result.recentTransactions : [],
+        });
       } catch (error) {
         console.error("Gagal mengambil data dashboard:", error);
       }
@@ -60,6 +71,13 @@ export const Dashboard = () => {
 
     fetchDashboardData();
   }, []);
+
+  const chartData = financials.cashFlowByWeek.length > 0
+    ? financials.cashFlowByWeek.map((item) => ({
+        name: `W${item.week}`,
+        balance: item.income - item.expense,
+      }))
+    : mockData;
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
@@ -134,6 +152,7 @@ export const Dashboard = () => {
               <p className="font-medium text-text/60">{t('income')}</p>
               {/* GANTI: Menggunakan pemasukan asli */}
               <h3 className="text-2xl text-green-600 mt-1">{formatCurrency(financials.income || 0)}</h3>
+              <h3 className="text-2xl text-green-600 mt-1">{formatCurrency(financials.monthlyIncome || 0)}</h3>
             </div>
             <div className="w-12 h-12 bg-green-100 rounded-2xl flex items-center justify-center text-green-600">
               <TrendingUp size={24} />
@@ -147,7 +166,7 @@ export const Dashboard = () => {
             <div>
               <p className="font-medium text-text/60">{t('expense')}</p>
               {/* GANTI: Menggunakan pengeluaran asli */}
-              <h3 className="text-2xl text-red-600 mt-1">{formatCurrency(financials.expense || 0)}</h3>
+              <h3 className="text-2xl text-red-600 mt-1">{formatCurrency(financials.monthlyExpense || 0)}</h3>
             </div>
             <div className="w-12 h-12 bg-red-100 rounded-2xl flex items-center justify-center text-red-600">
               <TrendingDown size={24} />
@@ -169,7 +188,7 @@ export const Dashboard = () => {
           </div>
           <div className="h-[300px] w-full">
             <ResponsiveContainer width="100%" height="100%">
-              <AreaChart data={mockData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+              <AreaChart data={chartData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
                 <defs>
                   <linearGradient id="colorBalance" x1="0" y1="0" x2="0" y2="1">
                     <stop offset="5%" stopColor="#F97316" stopOpacity={0.3}/>
