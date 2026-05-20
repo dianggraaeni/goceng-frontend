@@ -7,6 +7,7 @@ import { Landing } from './pages/Landing';
 import { Dashboard } from './pages/Dashboard';
 import { Report } from './pages/Report';
 import { Login } from './pages/Login';
+import { Connect } from './pages/Connect';
 
 import { ProtectedRoute } from './components/ProtectedRoute';
 
@@ -19,6 +20,7 @@ export default function App() {
             <Route path="/" element={<Layout />}>
               <Route index element={<Landing />} />
               <Route path="login" element={<Login />} />
+              <Route path="connect" element={<Connect />} />
               
               {/* Protected Routes */}
               <Route path="dashboard" element={

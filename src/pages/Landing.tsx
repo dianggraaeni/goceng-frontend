@@ -50,7 +50,7 @@ export const Landing = () => {
             
             <div className="flex flex-col gap-4 pt-4">
               <div className="flex flex-wrap gap-4">
-                <Link to="/login">
+                <Link to="/connect">
                   <Button size="lg" className="gap-2 text-lg px-8 shadow-md">
                     Mulai Goceng <ArrowRight size={20} />
                   </Button>
@@ -60,25 +60,6 @@ export const Landing = () => {
                     {t('tryDemo')}
                   </Button>
                 </Link>
-              </div>
-              
-              {/* Bot Links */}
-              <div className="mt-4 p-4 bg-white/60 backdrop-blur-md border border-orange-100 rounded-2xl inline-block shadow-sm">
-                <p className="text-sm font-bold text-text/60 mb-3 uppercase tracking-wide">Atau langsung chat bot kami:</p>
-                <div className="flex flex-wrap gap-3">
-                  <a href="https://t.me/Goceng_ChatBot" target="_blank" rel="noreferrer" className="flex items-center gap-2 px-4 py-2 bg-blue-50 hover:bg-blue-100 border border-blue-200 rounded-xl transition-colors">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                      <path d="M21.93 2.92C22.09 2.5 21.98 2.03 21.65 1.74C21.32 1.45 20.84 1.41 20.47 1.63L2.47 12.63C2.12 12.84 1.93 13.25 1.99 13.66C2.05 14.07 2.37 14.4 2.78 14.48L7.49 15.43L10.02 21.14C10.21 21.56 10.63 21.84 11.09 21.84C11.14 21.84 11.19 21.84 11.24 21.83C11.75 21.75 12.16 21.37 12.28 20.87L13.56 16.64L18.42 20.57C18.67 20.78 18.99 20.87 19.31 20.83C19.62 20.78 19.91 20.6 20.08 20.33L21.93 2.92ZM13.84 14.89L11.51 16.78L10.01 13.38L18.17 6.4L7.86 13.91L4.01 13.14L19.46 3.7L13.84 14.89Z" fill="#2AABEE"/>
-                    </svg>
-                    <span className="font-bold text-blue-700">Telegram Bot</span>
-                  </a>
-                  <a href="https://wa.me/62895622767316" target="_blank" rel="noreferrer" className="flex items-center gap-2 px-4 py-2 bg-green-50 hover:bg-green-100 border border-green-200 rounded-xl transition-colors">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                      <path d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91C2.13 13.66 2.59 15.36 3.45 16.86L2.05 22L7.3 20.62C8.75 21.41 10.38 21.83 12.04 21.83C17.5 21.83 21.95 17.38 21.95 11.92C21.95 9.27 20.92 6.78 19.05 4.91C17.18 3.03 14.69 2 12.04 2ZM12.04 20.15C10.57 20.15 9.15 19.76 7.9 19L7.6 18.82L4.43 19.65L5.28 16.55L5.09 16.24C4.3 14.94 3.87 13.44 3.87 11.91C3.87 7.4 7.54 3.73 12.05 3.73C14.24 3.73 16.3 4.58 17.85 6.14C19.4 7.69 20.25 9.75 20.25 11.93C20.25 16.44 16.58 20.15 12.04 20.15ZM16.53 14.01C16.28 13.88 15.06 13.28 14.84 13.2C14.62 13.11 14.45 13.07 14.29 13.32C14.13 13.57 13.66 14.11 13.52 14.28C13.37 14.45 13.23 14.47 12.98 14.34C12.73 14.22 11.93 13.96 10.98 13.11C10.24 12.45 9.74 11.62 9.6 11.37C9.45 11.12 9.58 10.99 9.71 10.87C9.82 10.76 9.96 10.58 10.09 10.43C10.21 10.28 10.25 10.18 10.33 10.01C10.41 9.84 10.37 9.69 10.31 9.57C10.25 9.44 9.75 8.22 9.54 7.72C9.34 7.23 9.13 7.3 8.98 7.3C8.84 7.3 8.67 7.3 8.51 7.3C8.35 7.3 8.08 7.36 7.85 7.61C7.62 7.86 6.98 8.46 6.98 9.69C6.98 10.92 7.89 12.1 8.01 12.27C8.13 12.44 9.77 15 12.3 16.09C12.9 16.35 13.37 16.5 13.75 16.62C14.35 16.81 14.89 16.78 15.31 16.72C15.79 16.65 16.8 16.12 17.01 15.53C17.22 14.94 17.22 14.44 17.16 14.33C17.09 14.22 16.93 14.16 16.68 14.03" fill="#25D366"/>
-                    </svg>
-                    <span className="font-bold text-green-700">WhatsApp Bot</span>
-                  </a>
-                </div>
               </div>
             </div>
           </motion.div>
