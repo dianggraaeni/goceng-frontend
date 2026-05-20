@@ -45,12 +45,15 @@ export const Connect = () => {
       <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-orange-300/10 rounded-full blur-[100px] -z-20"></div>
       <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-yellow-300/10 rounded-full blur-[80px] -z-20"></div>
 
-      <div className="w-full max-w-7xl relative z-10 flex flex-col items-center">
-        <Link to="/" className="absolute top-0 left-0 md:left-8 flex items-center gap-2 text-primary font-bold text-sm hover:underline">
+      {/* Back Navigation */}
+      <div className="absolute top-0 left-0 w-full p-6 md:p-8 z-50">
+        <Link to="/" className="inline-flex items-center gap-2 text-primary font-bold text-sm hover:underline bg-white/50 backdrop-blur-sm px-4 py-2 rounded-full border border-orange-100 shadow-sm">
           <ArrowLeft size={16} />
           Kembali ke Beranda
         </Link>
+      </div>
 
+      <div className="w-full max-w-7xl relative z-10 flex flex-col items-center mt-12 md:mt-0">
         <motion.div 
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
