@@ -1005,6 +1005,8 @@ export const Dashboard = () => {
           </div>
         )}
       </AnimatePresence>
+      </>
+      )}
     </div>
   );
 };
