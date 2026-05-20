@@ -5,7 +5,6 @@ import { AuthProvider } from './contexts/AuthContext';
 import { Layout } from './components/Layout';
 import { Landing } from './pages/Landing';
 import { Dashboard } from './pages/Dashboard';
-import { Chat } from './pages/Chat';
 import { Report } from './pages/Report';
 import { Login } from './pages/Login';
 
@@ -25,11 +24,6 @@ export default function App() {
               <Route path="dashboard" element={
                 <ProtectedRoute>
                   <Dashboard />
-                </ProtectedRoute>
-              } />
-              <Route path="chat" element={
-                <ProtectedRoute>
-                  <Chat />
                 </ProtectedRoute>
               } />
               <Route path="report" element={

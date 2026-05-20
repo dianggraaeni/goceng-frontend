@@ -3,7 +3,8 @@ import { useLanguage } from '@/contexts/LanguageContext';
 import { Card } from '@/components/ui/Card';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip as RechartsTooltip, BarChart, Bar, XAxis, YAxis, CartesianGrid } from 'recharts';
 import { TrendingUp, TrendingDown, Wallet } from 'lucide-react';
-import { buildApiUrl } from '@/lib/api';
+import { apiFetch } from '@/lib/api';
+import { useAuth } from '@/contexts/AuthContext';
 
 type ReportData = {
   summary: {
@@ -30,6 +31,7 @@ export const Report = () => {
   const today = new Date();
   const [selectedMonth, setSelectedMonth] = useState(today.getMonth() + 1);
   const [selectedYear, setSelectedYear] = useState(today.getFullYear());
+  const { selectedAccountId: activeAccountId } = useAuth();
   const [report, setReport] = useState<ReportData | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -43,15 +45,14 @@ export const Report = () => {
 
   useEffect(() => {
     const fetchReport = async () => {
+      if (!activeAccountId) {
+        setLoading(false);
+        return;
+      }
       setLoading(true);
       try {
-        const response = await fetch(
-          buildApiUrl(`/reports/data?month=${selectedMonth}&year=${selectedYear}`),
-          {
-            headers: {
-              Authorization: `Bearer ${localStorage.getItem('token')}`,
-            },
-          }
+        const response = await apiFetch(
+          `/reports/data?month=${selectedMonth}&year=${selectedYear}`
         );
 
         if (!response.ok) {
@@ -85,7 +86,7 @@ export const Report = () => {
     };
 
     fetchReport();
-  }, [selectedMonth, selectedYear]);
+  }, [selectedMonth, selectedYear, activeAccountId]);
 
   const monthOptions = Array.from({ length: 6 }, (_, index) => {
     const optionDate = new Date(today.getFullYear(), today.getMonth() - index, 1);

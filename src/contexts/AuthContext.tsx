@@ -1,19 +1,34 @@
-import React, { createContext, useContext, useState, ReactNode, useEffect } from 'react';
-import { buildApiUrl } from '@/lib/api';
+import React, { createContext, useContext, useState, ReactNode, useEffect, useCallback } from 'react';
+import { apiFetch } from '@/lib/api';
 
-// 1. Definisikan struktur data User
+// --- Data types ---
+
+interface MessagingAccount {
+  id: string;
+  platform: 'WHATSAPP' | 'TELEGRAM';
+  externalId: string;
+  spreadsheetId?: string | null;
+  googleDriveFolderId?: string | null;
+  createdAt?: string;
+}
+
 interface User {
   id: string;
   name: string;
   email: string;
   avatar?: string;
   profilePicture?: string | null;
+  messagingAccounts?: MessagingAccount[];
 }
 
-// 2. Tambahkan 'user' ke dalam tipe Context
+// --- Context contract ---
+
 interface AuthContextType {
   isAuthenticated: boolean;
-  user: User | null; 
+  user: User | null;
+  messagingAccounts: MessagingAccount[];
+  selectedAccountId: string | null;
+  setSelectedAccountId: (id: string) => void;
   login: (token?: string, userData?: User) => void;
   logout: () => void;
   loading: boolean;
@@ -25,15 +40,21 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [messagingAccounts, setMessagingAccounts] = useState<MessagingAccount[]>([]);
+  const [selectedAccountId, _setSelectedAccountId] = useState<string | null>(
+    localStorage.getItem('selectedAccountId')
+  );
+
+  // Persist selection in localStorage so apiFetch can read it synchronously
+  const setSelectedAccountId = useCallback((id: string) => {
+    localStorage.setItem('selectedAccountId', id);
+    _setSelectedAccountId(id);
+  }, []);
 
   // Fungsi untuk mengambil profil user dari backend
   const fetchUserProfile = async (token: string) => {
     try {
-      const response = await fetch(buildApiUrl('/auth/me'), {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      });
+      const response = await apiFetch('/auth/me');
 
       if (!response.ok) {
         throw new Error('Failed to fetch authenticated user');
@@ -41,13 +62,31 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
       const result = await response.json();
 
+      // Parse messaging accounts from new backend schema (v2.0), falling back gracefully
+      const accounts: MessagingAccount[] = Array.isArray(result.messagingAccounts)
+        ? result.messagingAccounts
+        : [];
+
       setUser({
         id: result.id,
         name: result.name,
         email: result.email,
         avatar: result.profilePicture || undefined,
         profilePicture: result.profilePicture || null,
+        messagingAccounts: accounts,
       });
+
+      setMessagingAccounts(accounts);
+
+      // Restore previously-selected account, or default to the first one
+      const saved = localStorage.getItem('selectedAccountId');
+      const validSaved = saved && accounts.some((a) => a.id === saved);
+      if (validSaved) {
+        _setSelectedAccountId(saved);
+      } else if (accounts.length > 0) {
+        setSelectedAccountId(accounts[0].id);
+      }
+
       setIsAuthenticated(true);
     } catch (error) {
       console.error("Error fetching profile:", error);
@@ -86,13 +125,27 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   
   const logout = () => {
     localStorage.removeItem('token');
+    localStorage.removeItem('selectedAccountId');
     setUser(null);
+    setMessagingAccounts([]);
+    _setSelectedAccountId(null);
     setIsAuthenticated(false);
     window.location.href = '/login';
   };
 
   return (
-    <AuthContext.Provider value={{ isAuthenticated, user, login, logout, loading }}>
+    <AuthContext.Provider
+      value={{
+        isAuthenticated,
+        user,
+        messagingAccounts,
+        selectedAccountId,
+        setSelectedAccountId,
+        login,
+        logout,
+        loading,
+      }}
+    >
       {!loading && children}
     </AuthContext.Provider>
   );

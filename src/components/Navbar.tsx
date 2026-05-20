@@ -3,6 +3,7 @@ import { Link, useLocation } from 'react-router-dom';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from './ui/Button';
+import { AccountSwitcher } from './AccountSwitcher';
 import { Wallet, Globe, Menu, X, LogOut } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 
@@ -70,7 +71,6 @@ export const Navbar = () => {
 
   const navLinks = isAuthenticated ? [
     { path: '/dashboard', label: t('dashboard') },
-    { path: '/chat', label: t('chat') },
     { path: '/report', label: t('report') },
   ] : [
     { path: '/', label: t('home') },
@@ -125,6 +125,7 @@ export const Navbar = () => {
             </div>
 
             <div className="flex items-center gap-4">
+              {isAuthenticated && <AccountSwitcher />}
               <button
                 onClick={toggleLang}
                 className="flex items-center gap-2 text-sm font-bold text-text/70 hover:text-primary transition-colors"
@@ -206,6 +207,11 @@ export const Navbar = () => {
                   </Link>
                 );
               })}
+              {isAuthenticated && (
+                <div className="pt-2">
+                  <AccountSwitcher />
+                </div>
+              )}
               <div className="pt-4">
                 {isAuthenticated ? (
                   <Button className="w-full gap-2" onClick={() => { logout(); setIsOpen(false); }}>

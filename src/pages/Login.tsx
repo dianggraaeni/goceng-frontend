@@ -10,8 +10,16 @@ export const Login = () => {
   const { t } = useLanguage();
 
   const handleGoogleAuth = () => {
-    // Langsung arahkan ke backend OAuth
-    window.location.href = buildApiUrl('/auth/google');
+    // Forward tg (Telegram) or wa (WhatsApp) query params to the backend OAuth flow
+    const params = new URLSearchParams(window.location.search);
+    const tg = params.get('tg');
+    const wa = params.get('wa');
+
+    let oauthUrl = buildApiUrl('/auth/google');
+    if (tg) oauthUrl += `?tg=${encodeURIComponent(tg)}`;
+    else if (wa) oauthUrl += `?wa=${encodeURIComponent(wa)}`;
+
+    window.location.href = oauthUrl;
   };
 
   return (
