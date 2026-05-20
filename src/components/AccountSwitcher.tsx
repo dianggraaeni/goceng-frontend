@@ -12,8 +12,8 @@ export const AccountSwitcher = () => {
   const { messagingAccounts, selectedAccountId, setSelectedAccountId } = useAuth();
   const { lang } = useLanguage();
 
-  // Nothing to switch when there is 0 or 1 account
-  if (messagingAccounts.length < 2) return null;
+  // Do not render if there are no accounts connected
+  if (messagingAccounts.length === 0) return null;
 
   const platformLabel = (platform: string, externalId: string) => {
     if (platform === 'TELEGRAM') return `🤖 Telegram — ${externalId}`;
