@@ -499,21 +499,6 @@ export const Dashboard = () => {
         </motion.div>
       ) : (
         <>
-          <motion.div
-        initial={{ opacity: 0, y: -10 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="bg-orange-100 border-2 border-primary/20 rounded-2xl p-4 flex items-start md:items-center gap-4 shadow-sm"
-      >
-        <div className="w-10 h-10 bg-primary rounded-full flex items-center justify-center text-white shrink-0">
-          <Bell size={20} />
-        </div>
-        <div className="flex-1">
-          <h4 className="font-bold text-accent">{reminderTitle}</h4>
-          <p className="text-sm text-text/70">{reminderDescription}</p>
-        </div>
-        <Button size="sm" onClick={() => setShowAddForm(true)}>{t('logNow')}</Button>
-      </motion.div>
-
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <Card className="bg-gradient-to-br from-primary to-orange-600 text-white border-none relative overflow-hidden">
           <div className="absolute top-0 right-0 p-4 opacity-20 transform translate-x-4 -translate-y-4">
@@ -646,83 +631,6 @@ export const Dashboard = () => {
         </Card>
 
         <div className="space-y-6">
-          <Card className="overflow-hidden bg-gradient-to-br from-orange-50 via-amber-50 to-white border-orange-200">
-            <div className="flex items-start justify-between gap-4">
-              <div>
-                <p className="text-xs font-bold text-primary uppercase tracking-[0.18em]">
-                  {lang === 'id' ? 'Pet Streak' : 'Streak Pet'}
-                </p>
-                <h3 className="text-2xl text-accent mt-2">{petStageContent.title}</h3>
-                <p className="text-sm text-text/70 mt-2">{petStageContent.description}</p>
-              </div>
-              <span className="inline-flex items-center rounded-full bg-white/80 px-3 py-1 text-xs font-bold text-primary border border-orange-200">
-                {financials.gamification.petMood === 'happy'
-                  ? (lang === 'id' ? 'Kenyang' : 'Fed')
-                  : financials.gamification.petMood === 'hungry'
-                    ? (lang === 'id' ? 'Lapar' : 'Hungry')
-                    : (lang === 'id' ? 'Tidur' : 'Sleeping')}
-              </span>
-            </div>
-
-            <div className="mt-5 rounded-[28px] bg-white/80 border border-orange-100 p-5">
-              <div className="flex items-center justify-between gap-4">
-                <div>
-                  <p className="text-sm font-bold text-text/60">{lang === 'id' ? 'Tahap Saat Ini' : 'Current Stage'}</p>
-                  <p className="text-xl font-heading text-accent">{financials.gamification.currentStreak} {t('days')}</p>
-                </div>
-                <div className="w-28 h-28 rounded-[24px] bg-gradient-to-br from-orange-100 to-amber-100 border border-orange-200 flex items-center justify-center overflow-hidden">
-                  <img
-                    src={PET_STAGE_ASSETS[financials.gamification.petStageKey]}
-                    alt="Goceng Mascot"
-                    className="w-24 h-24 object-contain"
-                  />
-                </div>
-              </div>
-
-              <div className="mt-5 space-y-3">
-                <div className="flex items-center justify-between text-sm">
-                  <span className="font-medium text-text/60">
-                    {lang === 'id' ? 'Total transaksi tercatat' : 'Total logged transactions'}
-                  </span>
-                  <span className="font-bold text-accent">{financials.gamification.totalTransactions}</span>
-                </div>
-                <div className="flex items-center justify-between text-sm">
-                  <span className="font-medium text-text/60">
-                    {lang === 'id' ? 'Evolusi berikutnya' : 'Next evolution'}
-                  </span>
-                  <span className="font-bold text-accent">
-                    {financials.gamification.nextEvolutionAt
-                      ? `${financials.gamification.nextEvolutionAt} ${t('days')}`
-                      : (lang === 'id' ? 'Maksimal' : 'Maxed')}
-                  </span>
-                </div>
-                <div className="w-full bg-orange-100 rounded-full h-2">
-                  <div
-                    className="bg-primary h-2 rounded-full transition-all"
-                    style={{
-                      width: financials.gamification.nextEvolutionAt
-                        ? `${Math.min((financials.gamification.currentStreak / financials.gamification.nextEvolutionAt) * 100, 100)}%`
-                        : '100%',
-                    }}
-                  ></div>
-                </div>
-                <p className="text-sm text-text/70">
-                  {financials.gamification.nextEvolutionAt
-                    ? (
-                      lang === 'id'
-                        ? `${financials.gamification.daysToNextEvolution} hari lagi menuju evolusi berikutnya.`
-                        : `${financials.gamification.daysToNextEvolution} more days until the next evolution.`
-                    )
-                    : (
-                      lang === 'id'
-                        ? 'Pet kamu sudah mencapai bentuk tertinggi.'
-                        : 'Your pet has reached its highest form.'
-                    )}
-                </p>
-              </div>
-            </div>
-          </Card>
-
           <Card className="flex flex-col">
             <div className="flex justify-between items-center mb-6">
               <h3 className="text-xl">{t('recentTransactions')}</h3>
