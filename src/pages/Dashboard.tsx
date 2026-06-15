@@ -5,12 +5,11 @@ import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { motion, AnimatePresence } from 'motion/react';
 import {
-  Award,
-  Bell,
   Building2,
   CreditCard,
-  Flame,
+  Edit3,
   Plus,
+  Trash2,
   TrendingDown,
   TrendingUp,
   Wallet,
@@ -50,6 +49,11 @@ type RecentTransaction = {
   type: 'income' | 'expense' | 'transfer';
   icon: string | null;
   accountName: string;
+  accountId: string;
+  categoryId: string | null;
+  description: string;
+  rawDate: string;
+  rawType: 'INCOME' | 'EXPENSE' | 'TRANSFER';
 };
 
 type DashboardPreset = {
@@ -72,17 +76,6 @@ type DashboardSummary = {
     presets: DashboardPreset[];
   };
   recentTransactions: RecentTransaction[];
-  gamification: {
-    currentStreak: number;
-    level: number;
-    hasLoggedToday: boolean;
-    totalTransactions: number;
-    streakState: 'safe' | 'at-risk' | 'reset';
-    petMood: 'happy' | 'hungry' | 'sleepy';
-    petStageKey: 'egg' | 'baby' | 'teen' | 'adult' | 'legendary';
-    nextEvolutionAt: number | null;
-    daysToNextEvolution: number;
-  };
 };
 
 type Category = {
@@ -122,26 +115,7 @@ const EMPTY_SUMMARY: DashboardSummary = {
     presets: [],
   },
   recentTransactions: [],
-  gamification: {
-    currentStreak: 0,
-    level: 1,
-    hasLoggedToday: false,
-    totalTransactions: 0,
-    streakState: 'reset',
-    petMood: 'sleepy',
-    petStageKey: 'egg',
-    nextEvolutionAt: 1,
-    daysToNextEvolution: 1,
-  },
 };
-
-const PET_STAGE_ASSETS = {
-  egg: '/mascot_2.png',
-  baby: '/mascot.png',
-  teen: '/mascot_2.png',
-  adult: '/mascot.png',
-  legendary: '/jempol.png',
-} as const;
 
 const formatInputDate = (date: Date) => {
   const year = date.getFullYear();
@@ -170,7 +144,8 @@ export const Dashboard = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState('');
   const [formState, setFormState] = useState<TransactionFormState>(DEFAULT_FORM_STATE);
-
+  const [editingTransactionId, setEditingTransactionId] = useState<string | null>(null);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('id-ID', {
       style: 'currency',
@@ -238,17 +213,6 @@ export const Dashboard = () => {
             presets: Array.isArray(result.accountFilters?.presets) ? result.accountFilters.presets : [],
           },
           recentTransactions: Array.isArray(result.recentTransactions) ? result.recentTransactions : [],
-          gamification: {
-            currentStreak: result.gamification?.currentStreak || 0,
-            level: result.gamification?.level || 1,
-            hasLoggedToday: Boolean(result.gamification?.hasLoggedToday),
-            totalTransactions: result.gamification?.totalTransactions || 0,
-            streakState: result.gamification?.streakState || 'reset',
-            petMood: result.gamification?.petMood || 'sleepy',
-            petStageKey: result.gamification?.petStageKey || 'egg',
-            nextEvolutionAt: result.gamification?.nextEvolutionAt ?? null,
-            daysToNextEvolution: result.gamification?.daysToNextEvolution || 0,
-          },
         });
 
         if ((result.accountFilters?.selectedScope || 'all') !== selectedScope) {
@@ -331,74 +295,7 @@ export const Dashboard = () => {
   const selectedScopeLabel = allScopeOptions.find((option) => option.value === selectedScope)?.label
     || (lang === 'id' ? 'Semua Akun' : 'All Accounts');
 
-  const petStageContent = {
-    egg: {
-      title: lang === 'id' ? 'Tahap Telur' : 'Egg Stage',
-      description: lang === 'id'
-        ? 'Pet masih menunggu nutrisi pertama. Catat transaksi hari ini untuk mulai menetas.'
-        : 'Your pet is waiting for its first nutrition. Log a transaction today to hatch it.',
-    },
-    baby: {
-      title: lang === 'id' ? 'Tahap Bayi' : 'Baby Stage',
-      description: lang === 'id'
-        ? 'Pet mulai tumbuh. Semakin rutin kamu mencatat, semakin cepat dia berkembang.'
-        : 'Your pet has started growing. The more consistent you log, the faster it evolves.',
-    },
-    teen: {
-      title: lang === 'id' ? 'Tahap Remaja' : 'Teen Stage',
-      description: lang === 'id'
-        ? 'Streak 14 hari tercapai. Pet sudah terlihat lebih aktif dan kuat.'
-        : 'You hit the 14-day streak. Your pet now looks more active and stronger.',
-    },
-    adult: {
-      title: lang === 'id' ? 'Tahap Dewasa' : 'Adult Stage',
-      description: lang === 'id'
-        ? 'Pet dewasa hadir setelah 30 hari. Saatnya jaga konsistensi untuk aksesori spesial.'
-        : 'Your adult pet appears after 30 days. Keep the streak alive for special accessories.',
-    },
-    legendary: {
-      title: lang === 'id' ? 'Tahap Legendaris' : 'Legendary Stage',
-      description: lang === 'id'
-        ? '100+ hari streak. Pet legendarismu siap tampil dengan perlengkapan penuh.'
-        : '100+ streak days. Your legendary pet is ready with its full accessories.',
-    },
-  }[financials.gamification.petStageKey];
 
-  const streakMessage = financials.gamification.currentStreak > 0
-    ? (
-      lang === 'id'
-        ? `Pet kamu sudah hidup ${financials.gamification.currentStreak} hari berturut-turut.`
-        : `Your pet has stayed alive for ${financials.gamification.currentStreak} straight days.`
-    )
-    : (
-      lang === 'id'
-        ? 'Belum ada streak. Mulai beri nutrisi dengan mencatat transaksi pertama hari ini.'
-        : 'No streak yet. Feed your pet by logging your first transaction today.'
-    );
-
-  const reminderTitle = financials.gamification.hasLoggedToday
-    ? (lang === 'id' ? 'Pet hari ini sudah diberi nutrisi' : 'Your pet has been fed today')
-    : financials.gamification.currentStreak > 0
-      ? (lang === 'id' ? 'Pet mulai kelaparan hari ini' : 'Your pet is getting hungry today')
-      : (lang === 'id' ? 'Mulai streak pertamamu hari ini' : 'Start your first streak today');
-
-  const reminderDescription = financials.gamification.hasLoggedToday
-    ? (
-      lang === 'id'
-        ? 'Bagus. Besok catat lagi supaya streak tetap lanjut dan pet terus bertumbuh.'
-        : 'Nice work. Log again tomorrow to keep the streak going and your pet growing.'
-    )
-    : financials.gamification.currentStreak > 0
-      ? (
-        lang === 'id'
-          ? 'Belum ada transaksi hari ini. Kalau sampai 23:59 belum tercatat, streak akan kembali ke 0.'
-          : 'No transaction has been logged today. If it stays empty until 23:59, your streak resets to 0.'
-      )
-      : (
-        lang === 'id'
-          ? 'Belum ada transaksi. Catat pemasukan atau pengeluaran pertamamu untuk menetasakan pet.'
-          : 'No transactions yet. Log your first income or expense to hatch the pet.'
-      );
 
   const balanceSummaryText = hasAnyActivity
     ? (
@@ -434,8 +331,12 @@ export const Dashboard = () => {
     setIsSubmitting(true);
 
     try {
-      const response = await apiFetch('/transactions', {
-        method: 'POST',
+      const isEditing = editingTransactionId !== null;
+      const endpoint = isEditing ? `/transactions/${editingTransactionId}` : '/transactions';
+      const method = isEditing ? 'PATCH' : 'POST';
+
+      const response = await apiFetch(endpoint, {
+        method,
         headers: {
           'Content-Type': 'application/json',
         },
@@ -454,6 +355,7 @@ export const Dashboard = () => {
       }
 
       setShowAddForm(false);
+      setEditingTransactionId(null);
       setFormState((prev) => ({
         ...DEFAULT_FORM_STATE,
         accountId: prev.accountId,
@@ -482,17 +384,6 @@ export const Dashboard = () => {
             presets: Array.isArray(result.accountFilters?.presets) ? result.accountFilters.presets : [],
           },
           recentTransactions: Array.isArray(result.recentTransactions) ? result.recentTransactions : [],
-          gamification: {
-            currentStreak: result.gamification?.currentStreak || 0,
-            level: result.gamification?.level || 1,
-            hasLoggedToday: Boolean(result.gamification?.hasLoggedToday),
-            totalTransactions: result.gamification?.totalTransactions || 0,
-            streakState: result.gamification?.streakState || 'reset',
-            petMood: result.gamification?.petMood || 'sleepy',
-            petStageKey: result.gamification?.petStageKey || 'egg',
-            nextEvolutionAt: result.gamification?.nextEvolutionAt ?? null,
-            daysToNextEvolution: result.gamification?.daysToNextEvolution || 0,
-          },
         });
       }
     } catch (error) {
@@ -507,6 +398,51 @@ export const Dashboard = () => {
     }
   };
 
+  const handleEditTransaction = (tx: RecentTransaction) => {
+    setEditingTransactionId(tx.id);
+    setFormState({
+      type: tx.rawType === 'TRANSFER' ? 'EXPENSE' : tx.rawType,
+      amount: tx.amount.toString(),
+      categoryId: tx.categoryId || '',
+      accountId: tx.accountId,
+      transactionDate: tx.rawDate,
+      description: tx.description,
+    });
+    setShowAddForm(true);
+  };
+
+  const handleDeleteTransaction = async (id: string) => {
+    if (!window.confirm(lang === 'id' ? 'Yakin ingin menghapus transaksi ini?' : 'Are you sure you want to delete this transaction?')) {
+      return;
+    }
+    setDeletingId(id);
+    try {
+      const response = await apiFetch(`/transactions/${id}`, {
+        method: 'DELETE',
+      });
+      if (response.ok) {
+        // Refresh dashboard
+        const query = selectedScope === 'all'
+          ? '/dashboard/summary'
+          : `/dashboard/summary?scope=${encodeURIComponent(selectedScope)}`;
+        const dashboardResponse = await apiFetch(query);
+        if (dashboardResponse.ok) {
+          const result = await dashboardResponse.json();
+          setFinancials(prev => ({
+            ...prev,
+            ...result,
+            accounts: Array.isArray(result.accounts) ? result.accounts : [],
+            recentTransactions: Array.isArray(result.recentTransactions) ? result.recentTransactions : [],
+          }));
+        }
+      }
+    } catch (error) {
+      console.error('Failed to delete transaction', error);
+    } finally {
+      setDeletingId(null);
+    }
+  };
+
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
@@ -514,33 +450,9 @@ export const Dashboard = () => {
           <h1 className="text-3xl text-accent">
             {t('welcomeBack')}, {user?.name?.split(' ')[0] || 'User'}!
           </h1>
-          <p className="text-text/70 font-medium mt-1">{streakMessage}</p>
-        </div>
-
-        <div className="flex gap-4">
-          <Card className="py-3 px-5 flex items-center gap-3 bg-orange-50 border-orange-200">
-            <div className="w-10 h-10 bg-orange-200 rounded-full flex items-center justify-center text-primary">
-              <Flame size={20} className="fill-primary" />
-            </div>
-            <div>
-              <p className="text-xs font-bold text-text/60 uppercase tracking-wider">{t('streak')}</p>
-              <p className="font-heading font-bold text-lg text-accent">
-                {financials.gamification.currentStreak} {t('days')}
-              </p>
-            </div>
-          </Card>
-
-          <Card className="py-3 px-5 flex items-center gap-3 bg-yellow-50 border-yellow-200">
-            <div className="w-10 h-10 bg-yellow-200 rounded-full flex items-center justify-center text-yellow-700">
-              <Award size={20} className="fill-yellow-700" />
-            </div>
-            <div>
-              <p className="text-xs font-bold text-text/60 uppercase tracking-wider">{t('level')}</p>
-              <p className="font-heading font-bold text-lg text-yellow-800">
-                Lvl {financials.gamification.level}
-              </p>
-            </div>
-          </Card>
+          <p className="text-text/70 font-medium mt-1">
+            {lang === 'id' ? 'Kelola keuanganmu dengan mudah dari sini.' : 'Manage your finances easily from here.'}
+          </p>
         </div>
       </div>
 
@@ -820,22 +732,41 @@ export const Dashboard = () => {
             <div className="space-y-4 flex-1 overflow-y-auto max-h-[340px]">
               {financials.recentTransactions.length > 0 ? (
                 financials.recentTransactions.map((tx) => (
-                  <div key={tx.id} className="flex items-center justify-between p-3 hover:bg-orange-50 rounded-2xl transition-colors cursor-pointer">
-                    <div className="flex items-center gap-4 min-w-0">
+                  <div key={tx.id} className="flex flex-col sm:flex-row items-start sm:items-center justify-between p-3 hover:bg-orange-50 rounded-2xl transition-colors cursor-pointer group">
+                    <div className="flex items-center gap-4 min-w-0 flex-1">
                       <div className="w-12 h-12 bg-surface border-2 border-orange-100 shadow-sm rounded-2xl flex items-center justify-center text-xl shrink-0">
                         {tx.icon || 'Rp'}
                       </div>
-                      <div className="min-w-0">
+                      <div className="min-w-0 flex-1">
                         <p className="font-bold text-text truncate">{tx.title}</p>
                         <p className="text-xs text-text/50 font-medium truncate">
                           {tx.date} • {tx.accountName}
                         </p>
                       </div>
                     </div>
-                    <p className={`font-bold shrink-0 ${tx.type === 'income' ? 'text-green-600' : 'text-text'}`}>
-                      {tx.type === 'income' ? '+' : tx.type === 'expense' ? '-' : ''}
-                      {formatCurrency(tx.amount)}
-                    </p>
+                    <div className="flex items-center gap-4 mt-2 sm:mt-0 w-full sm:w-auto justify-between sm:justify-end">
+                      <p className={`font-bold shrink-0 ${tx.type === 'income' ? 'text-green-600' : 'text-text'}`}>
+                        {tx.type === 'income' ? '+' : tx.type === 'expense' ? '-' : ''}
+                        {formatCurrency(tx.amount)}
+                      </p>
+                      <div className="flex items-center gap-2 opacity-100 sm:opacity-0 group-hover:opacity-100 transition-opacity">
+                        <button 
+                          onClick={(e) => { e.stopPropagation(); handleEditTransaction(tx); }}
+                          className="p-2 text-blue-600 hover:bg-blue-100 rounded-full"
+                          title={lang === 'id' ? 'Edit' : 'Edit'}
+                        >
+                          <Edit3 size={16} />
+                        </button>
+                        <button 
+                          onClick={(e) => { e.stopPropagation(); handleDeleteTransaction(tx.id); }}
+                          disabled={deletingId === tx.id}
+                          className="p-2 text-red-600 hover:bg-red-100 rounded-full disabled:opacity-50"
+                          title={lang === 'id' ? 'Hapus' : 'Delete'}
+                        >
+                          <Trash2 size={16} />
+                        </button>
+                      </div>
+                    </div>
                   </div>
                 ))
               ) : (
@@ -845,7 +776,11 @@ export const Dashboard = () => {
               )}
             </div>
 
-            <Button className="w-full mt-6 gap-2" onClick={() => setShowAddForm(true)}>
+            <Button className="w-full mt-6 gap-2" onClick={() => {
+              setEditingTransactionId(null);
+              setFormState(DEFAULT_FORM_STATE);
+              setShowAddForm(true);
+            }}>
               <Plus size={20} /> {t('addTransaction')}
             </Button>
           </Card>
@@ -869,7 +804,11 @@ export const Dashboard = () => {
                   <X size={20} />
                 </button>
 
-                <h2 className="text-2xl text-accent mb-6">{t('addTransaction')}</h2>
+                <h2 className="text-2xl text-accent mb-6">
+                  {editingTransactionId 
+                    ? (lang === 'id' ? 'Edit Transaksi' : 'Edit Transaction') 
+                    : t('addTransaction')}
+                </h2>
 
                 <form className="space-y-4" onSubmit={handleSubmitTransaction}>
                   <div className="grid grid-cols-2 gap-4 mb-6">
