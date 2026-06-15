@@ -753,7 +753,13 @@ export const Dashboard = () => {
                         value={formState.accountId}
                         onChange={(event) => setFormState((prev) => ({ ...prev, accountId: event.target.value }))}
                         className="w-full appearance-none bg-background border-2 border-orange-100 rounded-xl px-4 py-3 focus:outline-none focus:border-primary font-medium transition-colors"
+                        disabled={financials.accounts.length === 0}
                       >
+                        <option value="" disabled>
+                          {financials.accounts.length === 0 
+                            ? (lang === 'id' ? 'Belum ada akun, buat di chatbot' : 'No accounts, create in chatbot')
+                            : (lang === 'id' ? 'Pilih sumber dana' : 'Select account')}
+                        </option>
                         {directAccountOptions.length > 0 && (
                           <optgroup label={lang === 'id' ? 'Akun Bank' : 'Accounts'}>
                             {directAccountOptions.map((account) => (
