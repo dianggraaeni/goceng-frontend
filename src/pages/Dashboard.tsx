@@ -93,6 +93,12 @@ type TransactionFormState = {
   description: string;
 };
 
+type AccountFormState = {
+  name: string;
+  type: 'BANK' | 'E_WALLET' | 'CASH' | 'CREDIT_CARD' | 'INVESTMENT';
+  initialBalance: string;
+};
+
 type ScopeOption = {
   value: string;
   label: string;
@@ -133,10 +139,17 @@ const DEFAULT_FORM_STATE: TransactionFormState = {
   description: '',
 };
 
+const DEFAULT_ACCOUNT_FORM_STATE: AccountFormState = {
+  name: '',
+  type: 'BANK',
+  initialBalance: '',
+};
+
 export const Dashboard = () => {
   const { t, lang } = useLanguage();
   const { user, selectedAccountId: activeAccountId } = useAuth();
   const [showAddForm, setShowAddForm] = useState(false);
+  const [showAddAccountForm, setShowAddAccountForm] = useState(false);
   const [financials, setFinancials] = useState<DashboardSummary>(EMPTY_SUMMARY);
   const [categories, setCategories] = useState<Category[]>([]);
   const [selectedScope, setSelectedScope] = useState('all');
@@ -144,6 +157,9 @@ export const Dashboard = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState('');
   const [formState, setFormState] = useState<TransactionFormState>(DEFAULT_FORM_STATE);
+  const [accountFormState, setAccountFormState] = useState<AccountFormState>(DEFAULT_ACCOUNT_FORM_STATE);
+  const [isSubmittingAccount, setIsSubmittingAccount] = useState(false);
+  const [accountSubmitError, setAccountSubmitError] = useState('');
   const [editingTransactionId, setEditingTransactionId] = useState<string | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const formatCurrency = (amount: number) => {
@@ -177,26 +193,15 @@ export const Dashboard = () => {
     fetchCategories();
   }, [activeAccountId]);
 
-  useEffect(() => {
-    const fetchDashboardData = async () => {
-      if (!activeAccountId) {
-        setFinancials(EMPTY_SUMMARY);
-        setLoadingSummary(false);
-        return;
-      }
-      
+  const fetchDashboardData = async (scope: string) => {
+    try {
       setLoadingSummary(true);
+      const query = scope === 'all'
+        ? '/dashboard/summary'
+        : `/dashboard/summary?scope=${encodeURIComponent(scope)}`;
 
-      try {
-        const query = selectedScope === 'all'
-          ? '/dashboard/summary'
-          : `/dashboard/summary?scope=${encodeURIComponent(selectedScope)}`;
-        const response = await apiFetch(query);
-
-        if (!response.ok) {
-          throw new Error('Failed to fetch dashboard summary');
-        }
-
+      const response = await apiFetch(query);
+      if (response.ok) {
         const result = await response.json();
         setFinancials({
           totalBalance: result.totalBalance || 0,
@@ -215,17 +220,23 @@ export const Dashboard = () => {
           recentTransactions: Array.isArray(result.recentTransactions) ? result.recentTransactions : [],
         });
 
-        if ((result.accountFilters?.selectedScope || 'all') !== selectedScope) {
+        if ((result.accountFilters?.selectedScope || 'all') !== scope) {
           setSelectedScope(result.accountFilters?.selectedScope || 'all');
         }
-      } catch (error) {
-        console.error('Gagal mengambil data dashboard:', error);
-      } finally {
-        setLoadingSummary(false);
       }
-    };
+    } catch (error) {
+      console.error('Gagal mengambil data dashboard:', error);
+    } finally {
+      setLoadingSummary(false);
+    }
+  };
 
-    fetchDashboardData();
+  const refreshDashboard = () => fetchDashboardData(selectedScope);
+
+  useEffect(() => {
+    if (activeAccountId) {
+      fetchDashboardData(selectedScope);
+    }
   }, [selectedScope, activeAccountId]);
 
   useEffect(() => {
@@ -361,31 +372,8 @@ export const Dashboard = () => {
         accountId: prev.accountId,
         transactionDate: formatInputDate(new Date()),
       }));
-      setSelectedScope((prev) => prev);
-      const query = selectedScope === 'all'
-        ? '/dashboard/summary'
-        : `/dashboard/summary?scope=${encodeURIComponent(selectedScope)}`;
-      const dashboardResponse = await apiFetch(query);
-
-      if (dashboardResponse.ok) {
-        const result = await dashboardResponse.json();
-        setFinancials({
-          totalBalance: result.totalBalance || 0,
-          monthlyIncome: result.monthlyIncome || 0,
-          monthlyExpense: result.monthlyExpense || 0,
-          previousMonthlyIncome: result.previousMonthlyIncome || 0,
-          previousMonthlyExpense: result.previousMonthlyExpense || 0,
-          cashFlowByWeek: Array.isArray(result.cashFlowByWeek) && result.cashFlowByWeek.length > 0
-            ? result.cashFlowByWeek
-            : createEmptyWeeks(),
-          accounts: Array.isArray(result.accounts) ? result.accounts : [],
-          accountFilters: {
-            selectedScope: result.accountFilters?.selectedScope || 'all',
-            presets: Array.isArray(result.accountFilters?.presets) ? result.accountFilters.presets : [],
-          },
-          recentTransactions: Array.isArray(result.recentTransactions) ? result.recentTransactions : [],
-        });
-      }
+      
+      await fetchDashboardData(selectedScope);
     } catch (error) {
       console.error('Gagal menyimpan transaksi:', error);
       setSubmitError(
@@ -395,6 +383,49 @@ export const Dashboard = () => {
       );
     } finally {
       setIsSubmitting(false);
+    }
+  };
+
+  const handleAddAccount = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!accountFormState.name || !accountFormState.type || accountFormState.initialBalance === '') {
+      setAccountSubmitError(lang === 'id' ? 'Mohon isi semua field' : 'Please fill all fields');
+      return;
+    }
+
+    setAccountSubmitError('');
+    setIsSubmittingAccount(true);
+
+    try {
+      const response = await apiFetch('/accounts', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          name: accountFormState.name,
+          type: accountFormState.type,
+          initialBalance: Number(accountFormState.initialBalance),
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to create account');
+      }
+
+      setShowAddAccountForm(false);
+      setAccountFormState(DEFAULT_ACCOUNT_FORM_STATE);
+      
+      await fetchDashboardData(selectedScope);
+    } catch (error) {
+      console.error('Gagal membuat akun:', error);
+      setAccountSubmitError(
+        lang === 'id'
+          ? 'Gagal membuat akun. Coba lagi.'
+          : 'Failed to create account. Please try again.'
+      );
+    } finally {
+      setIsSubmittingAccount(false);
     }
   };
 
@@ -421,20 +452,7 @@ export const Dashboard = () => {
         method: 'DELETE',
       });
       if (response.ok) {
-        // Refresh dashboard
-        const query = selectedScope === 'all'
-          ? '/dashboard/summary'
-          : `/dashboard/summary?scope=${encodeURIComponent(selectedScope)}`;
-        const dashboardResponse = await apiFetch(query);
-        if (dashboardResponse.ok) {
-          const result = await dashboardResponse.json();
-          setFinancials(prev => ({
-            ...prev,
-            ...result,
-            accounts: Array.isArray(result.accounts) ? result.accounts : [],
-            recentTransactions: Array.isArray(result.recentTransactions) ? result.recentTransactions : [],
-          }));
-        }
+        await fetchDashboardData(selectedScope);
       }
     } catch (error) {
       console.error('Failed to delete transaction', error);
@@ -745,9 +763,18 @@ export const Dashboard = () => {
                   </div>
 
                   <div>
-                    <label className="block text-sm font-bold text-text/80 mb-1">
-                      {lang === 'id' ? 'Sumber Dana / Akun' : 'Funding Account'}
-                    </label>
+                    <div className="flex justify-between items-center mb-1">
+                      <label className="block text-sm font-bold text-text/80">
+                        {lang === 'id' ? 'Sumber Dana / Akun' : 'Funding Account'}
+                      </label>
+                      <button
+                        type="button"
+                        onClick={() => setShowAddAccountForm(true)}
+                        className="text-xs text-primary font-bold hover:underline flex items-center gap-1"
+                      >
+                        <Plus size={14} /> {lang === 'id' ? 'Buat Akun' : 'Add Account'}
+                      </button>
+                    </div>
                     <div className="relative">
                       <select
                         value={formState.accountId}
@@ -851,6 +878,95 @@ export const Dashboard = () => {
                     {isSubmitting
                       ? (lang === 'id' ? 'Menyimpan...' : 'Saving...')
                       : t('save')}
+                  </Button>
+                </form>
+              </Card>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
+      <AnimatePresence>
+        {showAddAccountForm && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 20 }}
+              className="w-full max-w-md"
+            >
+              <Card className="relative border border-orange-100 shadow-2xl">
+                <button
+                  onClick={() => setShowAddAccountForm(false)}
+                  className="absolute right-4 top-4 p-2 text-text/50 hover:text-text hover:bg-orange-50 rounded-full transition-colors"
+                >
+                  <X size={20} />
+                </button>
+
+                <h3 className="text-xl font-bold mb-6">
+                  {lang === 'id' ? 'Tambah Sumber Dana' : 'Add Funding Account'}
+                </h3>
+
+                <form className="space-y-4" onSubmit={handleAddAccount}>
+                  <div>
+                    <label className="block text-sm font-bold text-text/80 mb-1">
+                      {lang === 'id' ? 'Nama Akun' : 'Account Name'}
+                    </label>
+                    <input
+                      type="text"
+                      value={accountFormState.name}
+                      onChange={(event) => setAccountFormState((prev) => ({ ...prev, name: event.target.value }))}
+                      className="w-full bg-background border-2 border-orange-100 rounded-xl px-4 py-3 focus:outline-none focus:border-primary font-medium transition-colors"
+                      placeholder={lang === 'id' ? 'Contoh: BCA Pribadi, Gopay' : 'Example: Personal BCA, Gopay'}
+                      required
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-bold text-text/80 mb-1">
+                      {lang === 'id' ? 'Jenis Akun' : 'Account Type'}
+                    </label>
+                    <select
+                      value={accountFormState.type}
+                      onChange={(event) => setAccountFormState((prev) => ({ ...prev, type: event.target.value as any }))}
+                      className="w-full bg-background border-2 border-orange-100 rounded-xl px-4 py-3 focus:outline-none focus:border-primary font-medium transition-colors"
+                    >
+                      <option value="BANK">{lang === 'id' ? 'Rekening Bank' : 'Bank Account'}</option>
+                      <option value="E_WALLET">{lang === 'id' ? 'Dompet Digital / E-Wallet' : 'E-Wallet'}</option>
+                      <option value="CASH">{lang === 'id' ? 'Uang Tunai' : 'Cash'}</option>
+                      <option value="CREDIT_CARD">{lang === 'id' ? 'Kartu Kredit' : 'Credit Card'}</option>
+                      <option value="INVESTMENT">{lang === 'id' ? 'Investasi' : 'Investment'}</option>
+                    </select>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-bold text-text/80 mb-1">
+                      {lang === 'id' ? 'Saldo Awal' : 'Initial Balance'}
+                    </label>
+                    <div className="relative">
+                      <span className="absolute left-4 top-1/2 -translate-y-1/2 font-bold text-text/50">Rp</span>
+                      <input
+                        type="number"
+                        value={accountFormState.initialBalance}
+                        onChange={(event) => setAccountFormState((prev) => ({ ...prev, initialBalance: event.target.value }))}
+                        className="w-full bg-background border-2 border-orange-100 rounded-xl pl-12 pr-4 py-3 focus:outline-none focus:border-primary font-medium transition-colors"
+                        placeholder="0"
+                        min="0"
+                        required
+                      />
+                    </div>
+                  </div>
+
+                  {accountSubmitError && (
+                    <div className="rounded-xl bg-red-50 border border-red-200 px-4 py-3 text-sm text-red-700">
+                      {accountSubmitError}
+                    </div>
+                  )}
+
+                  <Button className="w-full mt-6" size="lg" type="submit" disabled={isSubmittingAccount}>
+                    {isSubmittingAccount
+                      ? (lang === 'id' ? 'Menyimpan...' : 'Saving...')
+                      : (lang === 'id' ? 'Simpan Akun' : 'Save Account')}
                   </Button>
                 </form>
               </Card>
