@@ -126,6 +126,14 @@ export const Report = () => {
   const hasExpenseData = expenseData.length > 0;
   const hasWeeklyData = weeklyData.some((item) => item.income > 0 || item.expense > 0);
 
+  if (loading && !report) {
+    return (
+      <div className="flex items-center justify-center min-h-[60vh]">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+      </div>
+    );
+  }
+
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
       <div className="flex justify-between items-center">
