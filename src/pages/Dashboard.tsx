@@ -162,6 +162,11 @@ export const Dashboard = () => {
   const [accountSubmitError, setAccountSubmitError] = useState('');
   const [editingTransactionId, setEditingTransactionId] = useState<string | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [showAllTransactions, setShowAllTransactions] = useState(false);
+  const [allTransactions, setAllTransactions] = useState<any[]>([]);
+  const [loadingAllTransactions, setLoadingAllTransactions] = useState(false);
+  const [allTransactionsPage, setAllTransactionsPage] = useState(1);
+  const [hasMoreTransactions, setHasMoreTransactions] = useState(true);
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('id-ID', {
       style: 'currency',
@@ -461,6 +466,46 @@ export const Dashboard = () => {
     }
   };
 
+  const fetchAllTransactions = async (page = 1, append = false) => {
+    setLoadingAllTransactions(true);
+    try {
+      const response = await apiFetch(`/transactions?page=${page}&limit=15`);
+      if (response.ok) {
+        const result = await response.json();
+        const formattedTxs = result.data.map((tx: any) => ({
+          id: tx.id,
+          title: tx.description || tx.merchantName || tx.category?.name || 'Transaksi',
+          date: new Date(tx.transactionDate).toLocaleDateString('id-ID', {
+            day: 'numeric',
+            month: 'short',
+            year: 'numeric'
+          }),
+          amount: Number(tx.amount),
+          type: tx.type.toLowerCase(),
+          icon: tx.category?.icon || null,
+          accountName: tx.account?.name || 'Akun',
+          accountId: tx.accountId,
+          categoryId: tx.categoryId,
+          description: tx.description,
+          rawDate: new Date(tx.transactionDate).toISOString().split('T')[0],
+          rawType: tx.type,
+        }));
+        setAllTransactions(prev => append ? [...prev, ...formattedTxs] : formattedTxs);
+        setHasMoreTransactions(result.meta.page < result.meta.totalPages);
+        setAllTransactionsPage(result.meta.page);
+      }
+    } catch (error) {
+      console.error('Failed to fetch all transactions', error);
+    } finally {
+      setLoadingAllTransactions(false);
+    }
+  };
+
+  const openAllTransactions = () => {
+    setShowAllTransactions(true);
+    fetchAllTransactions(1, false);
+  };
+
   if (loadingSummary && financials === EMPTY_SUMMARY) {
     return (
       <div className="flex items-center justify-center min-h-[60vh]">
@@ -660,7 +705,12 @@ export const Dashboard = () => {
           <Card className="flex flex-col">
             <div className="flex justify-between items-center mb-6">
               <h3 className="text-xl">{t('recentTransactions')}</h3>
-              <button className="text-primary font-bold text-sm hover:underline">{t('viewAll')}</button>
+              <button 
+                onClick={openAllTransactions}
+                className="text-primary font-bold text-sm hover:bg-orange-50 px-3 py-1.5 rounded-lg transition-colors"
+              >
+                {t('viewAll')}
+              </button>
             </div>
 
             <div className="space-y-4 flex-1 overflow-y-auto max-h-[340px]">
@@ -778,7 +828,7 @@ export const Dashboard = () => {
                       <button
                         type="button"
                         onClick={() => setShowAddAccountForm(true)}
-                        className="text-xs text-primary font-bold hover:underline flex items-center gap-1"
+                        className="text-xs bg-orange-100 text-primary font-bold px-3 py-1.5 rounded-lg hover:bg-orange-200 transition-colors flex items-center gap-1 border border-orange-200 shadow-sm"
                       >
                         <Plus size={14} /> {lang === 'id' ? 'Buat Akun' : 'Add Account'}
                       </button>
@@ -977,6 +1027,97 @@ export const Dashboard = () => {
                       : (lang === 'id' ? 'Simpan Akun' : 'Save Account')}
                   </Button>
                 </form>
+              </Card>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
+      <AnimatePresence>
+        {showAllTransactions && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 20 }}
+              className="w-full max-w-lg"
+            >
+              <Card className="relative border border-orange-100 shadow-2xl flex flex-col max-h-[80vh]">
+                <button
+                  onClick={() => setShowAllTransactions(false)}
+                  className="absolute right-4 top-4 p-2 text-text/50 hover:text-text hover:bg-orange-50 rounded-full transition-colors z-10"
+                >
+                  <X size={20} />
+                </button>
+
+                <h3 className="text-xl font-bold mb-4 pr-8 shrink-0">
+                  {lang === 'id' ? 'Semua Transaksi' : 'All Transactions'}
+                </h3>
+
+                <div className="flex-1 overflow-y-auto space-y-2 pr-2">
+                  {allTransactions.map((tx) => (
+                    <div key={tx.id} className="flex flex-col sm:flex-row items-start sm:items-center justify-between p-3 hover:bg-orange-50 rounded-2xl transition-colors group border border-transparent hover:border-orange-100">
+                      <div className="flex items-center gap-4 min-w-0 flex-1 w-full">
+                        <div className="w-12 h-12 bg-surface border-2 border-orange-100 shadow-sm rounded-2xl flex items-center justify-center text-xl shrink-0">
+                          {tx.icon || 'Rp'}
+                        </div>
+                        <div className="min-w-0 flex-1 pr-2">
+                          <p className="font-bold text-text truncate">{tx.title}</p>
+                          <p className="text-xs text-text/50 font-medium truncate">
+                            {tx.date} • {tx.accountName}
+                          </p>
+                        </div>
+                      </div>
+                      
+                      <div className="flex items-center justify-between w-full sm:w-auto mt-3 sm:mt-0 gap-4 sm:pl-4 sm:border-l sm:border-border">
+                        <div className={`font-bold whitespace-nowrap text-right flex-1 sm:flex-none ${tx.type === 'income' ? 'text-green-600' : 'text-text'}`}>
+                          {tx.type === 'income' ? '+' : '-'}{formatCurrency(tx.amount)}
+                        </div>
+                        <div className="flex items-center gap-1 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity">
+                          <button
+                            onClick={() => {
+                              setShowAllTransactions(false);
+                              handleEditTransaction(tx);
+                            }}
+                            className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                          >
+                            <Edit3 size={16} />
+                          </button>
+                          <button
+                            onClick={() => {
+                              handleDeleteTransaction(tx.id);
+                              setShowAllTransactions(false);
+                            }}
+                            className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                          >
+                            <Trash2 size={16} />
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                  
+                  {loadingAllTransactions && (
+                    <div className="py-8 flex justify-center">
+                      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+                    </div>
+                  )}
+
+                  {!loadingAllTransactions && hasMoreTransactions && (
+                    <button
+                      onClick={() => fetchAllTransactions(allTransactionsPage + 1, true)}
+                      className="w-full py-3 mt-4 text-primary font-bold hover:bg-orange-50 rounded-xl transition-colors border border-orange-200"
+                    >
+                      {lang === 'id' ? 'Muat Lebih Banyak' : 'Load More'}
+                    </button>
+                  )}
+                  
+                  {!loadingAllTransactions && allTransactions.length === 0 && (
+                    <div className="py-12 text-center text-text/50 font-medium">
+                      {lang === 'id' ? 'Belum ada transaksi' : 'No transactions yet'}
+                    </div>
+                  )}
+                </div>
               </Card>
             </motion.div>
           </div>
