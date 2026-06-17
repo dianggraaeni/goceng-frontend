@@ -2,9 +2,12 @@ import React, { useEffect, useState } from 'react';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { Card } from '@/components/ui/Card';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip as RechartsTooltip, BarChart, Bar, XAxis, YAxis, CartesianGrid } from 'recharts';
-import { TrendingUp, TrendingDown, Wallet } from 'lucide-react';
+import { TrendingUp, TrendingDown, Wallet, Download } from 'lucide-react';
 import { apiFetch } from '@/lib/api';
 import { useAuth } from '@/contexts/AuthContext';
+import { Button } from '@/components/ui/Button';
+import jsPDF from 'jspdf';
+import html2canvas from 'html2canvas';
 
 type ReportData = {
   summary: {
@@ -34,6 +37,39 @@ export const Report = () => {
   const { selectedAccountId: activeAccountId } = useAuth();
   const [report, setReport] = useState<ReportData | null>(null);
   const [loading, setLoading] = useState(true);
+  const [isDownloading, setIsDownloading] = useState(false);
+
+  const handleDownloadPdf = async () => {
+    const reportElement = document.getElementById('report-content');
+    if (!reportElement) return;
+
+    setIsDownloading(true);
+    try {
+      const canvas = await html2canvas(reportElement, {
+        scale: 2,
+        useCORS: true,
+        logging: false,
+        backgroundColor: '#fef3c7' // matches orange-50/bg surface approximately or white
+      });
+      
+      const imgData = canvas.toDataURL('image/png');
+      const pdf = new jsPDF({
+        orientation: 'portrait',
+        unit: 'mm',
+        format: 'a4'
+      });
+
+      const pdfWidth = pdf.internal.pageSize.getWidth();
+      const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
+      
+      pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
+      pdf.save(`Laporan_Goceng_${selectedMonth}_${selectedYear}.pdf`);
+    } catch (error) {
+      console.error('Failed to generate PDF', error);
+    } finally {
+      setIsDownloading(false);
+    }
+  };
 
   const formatCurrency = (amount: number) => (
     new Intl.NumberFormat('id-ID', {
@@ -138,28 +174,39 @@ export const Report = () => {
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
       <div className="flex justify-between items-center">
         <h1 className="text-3xl text-accent">{t('reportTitle')}</h1>
-        <select
-          className="bg-surface border-2 border-orange-100 rounded-xl px-4 py-2 font-medium focus:outline-none focus:border-primary shadow-sm"
-          value={`${selectedYear}-${selectedMonth}`}
-          onChange={(event) => {
-            const [year, month] = event.target.value.split('-').map(Number);
-            setSelectedYear(year);
-            setSelectedMonth(month);
-          }}
-        >
-          {monthOptions.map((option) => (
-            <option
-              key={`${option.year}-${option.month}`}
-              value={`${option.year}-${option.month}`}
-            >
-              {option.label}
-            </option>
-          ))}
-        </select>
+        <div className="flex items-center gap-4">
+          <Button 
+            onClick={handleDownloadPdf} 
+            disabled={isDownloading || !report}
+            className="hidden sm:flex items-center gap-2 shadow-sm"
+          >
+            <Download size={18} />
+            {isDownloading ? (lang === 'id' ? 'Memproses...' : 'Processing...') : (lang === 'id' ? 'Download PDF' : 'Download PDF')}
+          </Button>
+          <select
+            className="bg-surface border-2 border-orange-100 rounded-xl px-4 py-2 font-medium focus:outline-none focus:border-primary shadow-sm"
+            value={`${selectedYear}-${selectedMonth}`}
+            onChange={(event) => {
+              const [year, month] = event.target.value.split('-').map(Number);
+              setSelectedYear(year);
+              setSelectedMonth(month);
+            }}
+          >
+            {monthOptions.map((option) => (
+              <option
+                key={`${option.year}-${option.month}`}
+                value={`${option.year}-${option.month}`}
+              >
+                {option.label}
+              </option>
+            ))}
+          </select>
+        </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <Card className="flex items-center gap-4 bg-gradient-to-br from-green-50 to-green-100 border-green-200">
+      <div id="report-content" className="space-y-8 pb-4">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <Card className="flex items-center gap-4 bg-gradient-to-br from-green-50 to-green-100 border-green-200">
           <div className="w-14 h-14 bg-green-500 rounded-2xl flex items-center justify-center text-white shadow-sm">
             <TrendingUp size={28} />
           </div>
@@ -284,6 +331,7 @@ export const Report = () => {
             )}
           </div>
         </Card>
+      </div>
       </div>
     </div>
   );

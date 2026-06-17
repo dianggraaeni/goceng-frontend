@@ -7,8 +7,20 @@ import { ArrowRight, Star, TrendingUp, ShieldCheck, MessageCircle, ChevronDown, 
 import { Link } from 'react-router-dom';
 
 export const Landing = () => {
-  const { t } = useLanguage();
+  const { t, lang } = useLanguage();
   const [activeFaq, setActiveFaq] = useState<number | null>(null);
+  const [contactForm, setContactForm] = useState({ name: '', email: '', message: '' });
+  const [contactSuccess, setContactSuccess] = useState(false);
+  const [selectedArticle, setSelectedArticle] = useState<{title: string, img: string, tag: string, content: string} | null>(null);
+
+  const handleContactSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!contactForm.name || !contactForm.email || !contactForm.message) return;
+    // Simulate sending message
+    setContactSuccess(true);
+    setContactForm({ name: '', email: '', message: '' });
+    setTimeout(() => setContactSuccess(false), 5000);
+  };
 
   const toggleFaq = (index: number) => {
     setActiveFaq(activeFaq === index ? null : index);
@@ -50,11 +62,11 @@ export const Landing = () => {
             
             <div className="flex flex-col gap-4 pt-4">
               <div className="flex flex-wrap gap-4">
-                <Link to="/connect">
+                <a href="https://t.me/Goceng_ChatBot" target="_blank" rel="noreferrer">
                   <Button size="lg" className="gap-2 text-lg px-8 shadow-md">
                     Mulai Goceng <ArrowRight size={20} />
                   </Button>
-                </Link>
+                </a>
                 <Link to="/dashboard">
                   <Button variant="outline" size="lg" className="text-lg px-8 bg-white/50 backdrop-blur-sm shadow-sm">
                     {t('tryDemo')}
@@ -422,17 +434,26 @@ export const Landing = () => {
               { title: t('blog2Title'), img: "bg-red-200", tag: t('blog2Tag') },
               { title: t('blog3Title'), img: "bg-yellow-200", tag: t('blog3Tag') }
             ].map((post, idx) => (
-            <Card key={idx} hoverable className="p-0 overflow-hidden flex flex-col">
-              <div className={`h-48 ${post.img} relative`}>
+            <Card 
+              key={idx} 
+              hoverable 
+              className="p-0 overflow-hidden flex flex-col cursor-pointer"
+              onClick={() => setSelectedArticle({ 
+                ...post, 
+                content: lang === 'id' ? 'Ini adalah isi artikel selengkapnya. Di sini Anda bisa membaca seluruh konten yang menarik. Goceng membantu mengatur keuangan Anda dengan baik dan lebih efisien. Teruslah membaca dan temukan tips-tips terbaik lainnya!' : 'This is the full article content. Here you can read the entire interesting content. Goceng helps manage your finances better and more efficiently. Keep reading to discover other great tips!' 
+              })}
+            >
+              <div className={`h-48 relative flex items-center justify-center bg-gray-200`}>
+                <img src={`https://placehold.co/600x400/orange/white?text=Article+${idx+1}`} alt="Article" className="w-full h-full object-cover" />
                 <div className="absolute top-4 left-4 bg-white/80 backdrop-blur-sm px-3 py-1 rounded-full text-xs font-bold text-primary">
                   {post.tag}
                 </div>
               </div>
               <div className="p-6 flex flex-col flex-1">
                 <h3 className="text-xl font-bold text-accent mb-4">{post.title}</h3>
-                <button className="mt-auto text-primary font-bold text-sm flex items-center gap-1 hover:gap-2 transition-all">
+                <div className="mt-auto text-primary font-bold text-sm flex items-center gap-1 hover:gap-2 transition-all">
                   {t('readMore')} <ArrowRight size={16} />
-                </button>
+                </div>
               </div>
             </Card>
           ))}
@@ -482,28 +503,42 @@ export const Landing = () => {
           >
             <Card className="p-8 shadow-soft-hover border-2 border-orange-100 bg-white/80 backdrop-blur-sm">
               <h3 className="text-2xl font-bold text-primary mb-6">{t('contactUs')}</h3>
-              <form className="space-y-4" onSubmit={(e) => e.preventDefault()}>
+              <form className="space-y-4" onSubmit={handleContactSubmit}>
                 <div>
                   <input 
                     type="text" 
+                    value={contactForm.name}
+                    onChange={(e) => setContactForm({ ...contactForm, name: e.target.value })}
                     placeholder={t('yourName')} 
                     className="w-full bg-orange-50/50 border-2 border-orange-100 rounded-xl px-4 py-3 focus:outline-none focus:border-primary font-medium transition-colors"
+                    required
                   />
                 </div>
                 <div>
                   <input 
                     type="email" 
+                    value={contactForm.email}
+                    onChange={(e) => setContactForm({ ...contactForm, email: e.target.value })}
                     placeholder={t('yourEmail')} 
                     className="w-full bg-orange-50/50 border-2 border-orange-100 rounded-xl px-4 py-3 focus:outline-none focus:border-primary font-medium transition-colors"
+                    required
                   />
                 </div>
                 <div>
                   <textarea 
+                    value={contactForm.message}
+                    onChange={(e) => setContactForm({ ...contactForm, message: e.target.value })}
                     placeholder={t('yourMessage')} 
                     rows={4}
                     className="w-full bg-orange-50/50 border-2 border-orange-100 rounded-xl px-4 py-3 focus:outline-none focus:border-primary font-medium transition-colors resize-none"
+                    required
                   ></textarea>
                 </div>
+                {contactSuccess && (
+                  <div className="text-green-600 font-bold text-sm bg-green-50 p-3 rounded-xl border border-green-200">
+                    {lang === 'id' ? 'Pesan berhasil terkirim!' : 'Message sent successfully!'}
+                  </div>
+                )}
                 <Button className="w-full mt-2 gap-2" size="lg" type="submit">
                   {t('send')} <Send size={18} />
                 </Button>
@@ -512,6 +547,44 @@ export const Landing = () => {
           </motion.div>
         </div>
       </section>
+      {/* 9. Footer Watermark */}
+      <footer className="py-6 border-t border-orange-100 bg-white text-center z-10 relative">
+        <p className="font-bold text-text/50">FE by dianggraaeni</p>
+      </footer>
+
+      {/* Article Modal */}
+      <AnimatePresence>
+        {selectedArticle && (
+          <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 20 }}
+              className="w-full max-w-2xl bg-white rounded-3xl overflow-hidden shadow-2xl flex flex-col max-h-[90vh]"
+            >
+              <div className="relative h-64 bg-gray-200 shrink-0">
+                <img src={selectedArticle.img.includes('bg-') ? `https://placehold.co/800x400/orange/white?text=Article` : selectedArticle.img} alt="Article Cover" className="w-full h-full object-cover" />
+                <button
+                  onClick={() => setSelectedArticle(null)}
+                  className="absolute right-4 top-4 p-2 bg-black/50 text-white hover:bg-black/70 rounded-full transition-colors z-10"
+                >
+                  <X size={20} />
+                </button>
+              </div>
+              <div className="p-8 overflow-y-auto">
+                <div className="inline-block px-4 py-1.5 bg-orange-100 text-primary font-bold rounded-full text-sm mb-4">
+                  {selectedArticle.tag}
+                </div>
+                <h2 className="text-3xl font-bold text-accent mb-6">{selectedArticle.title}</h2>
+                <div className="text-lg text-text/80 leading-relaxed space-y-4">
+                  <p>{selectedArticle.content}</p>
+                  <p>{lang === 'id' ? 'Jangan lupa untuk terus memantau keuangan harian Anda dengan fitur-fitur Goceng. Dengan mencatat pengeluaran setiap hari, Anda akan lebih mudah mencapai tujuan finansial Anda.' : 'Do not forget to keep monitoring your daily finances with Goceng features. By tracking expenses every day, you will more easily achieve your financial goals.'}</p>
+                </div>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
     </div>
   );
 };
