@@ -6,7 +6,7 @@ import { TrendingUp, TrendingDown, Wallet, Download } from 'lucide-react';
 import { apiFetch } from '@/lib/api';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/Button';
-import jsPDF from 'jspdf';
+import { jsPDF } from 'jspdf';
 import html2canvas from 'html2canvas';
 
 type ReportData = {
@@ -66,6 +66,7 @@ export const Report = () => {
       pdf.save(`Laporan_Goceng_${selectedMonth}_${selectedYear}.pdf`);
     } catch (error) {
       console.error('Failed to generate PDF', error);
+      alert(lang === 'id' ? 'Gagal mengunduh PDF. Silakan coba lagi.' : 'Failed to download PDF. Please try again.');
     } finally {
       setIsDownloading(false);
     }
