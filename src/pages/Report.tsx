@@ -64,9 +64,10 @@ export const Report = () => {
       
       pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
       pdf.save(`Laporan_Goceng_${selectedMonth}_${selectedYear}.pdf`);
-    } catch (error) {
+    } catch (error: any) {
       console.error('Failed to generate PDF', error);
-      alert(lang === 'id' ? 'Gagal mengunduh PDF. Silakan coba lagi.' : 'Failed to download PDF. Please try again.');
+      alert(lang === 'id' ? `Sedang mengalihkan ke mode cetak (Print to PDF) karena error: ${error?.message || 'Unknown'}` : `Switching to print mode due to error: ${error?.message || 'Unknown'}`);
+      window.print();
     } finally {
       setIsDownloading(false);
     }
