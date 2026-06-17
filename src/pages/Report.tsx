@@ -7,7 +7,7 @@ import { apiFetch } from '@/lib/api';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/Button';
 import { jsPDF } from 'jspdf';
-import 'jspdf-autotable';
+import autoTable from 'jspdf-autotable';
 import html2canvas from 'html2canvas';
 
 type ReportData = {
@@ -74,7 +74,7 @@ export const Report = () => {
         formatCurrency(Number(tx.amount))
       ]);
 
-      (pdf as any).autoTable({
+      autoTable(pdf, {
         startY: 50,
         head: [['Tanggal', 'Deskripsi', 'Kategori', 'Sumber Dana', 'Tipe', 'Nominal']],
         body: tableData,
