@@ -170,7 +170,7 @@ export const Report = () => {
         <div className="flex items-center gap-3">
           <Button 
             onClick={() => handleDownloadSpreadsheet('xlsx')} 
-            disabled={!report}
+            disabled={!report || loading}
             className="hidden sm:flex items-center gap-2 shadow-sm bg-green-500 hover:bg-green-600 border-none"
           >
             <FileSpreadsheet size={18} />
