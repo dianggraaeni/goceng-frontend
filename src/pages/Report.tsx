@@ -37,14 +37,31 @@ export const Report = () => {
   const [report, setReport] = useState<ReportData | null>(null);
   const [loading, setLoading] = useState(true);
 
-  const handleDownloadSpreadsheet = (format: 'pdf' | 'xlsx') => {
+  const handleDownloadSpreadsheet = async (format: 'pdf' | 'xlsx') => {
     const activeAccount = messagingAccounts.find(a => a.id === activeAccountId);
     if (!activeAccount || !activeAccount.spreadsheetId) {
       alert(lang === 'id' ? 'Spreadsheet tidak ditemukan atau belum terhubung.' : 'Spreadsheet is not found or not connected.');
       return;
     }
-    const url = `https://docs.google.com/spreadsheets/d/${activeAccount.spreadsheetId}/export?format=${format}&portrait=false`;
-    window.open(url, '_blank');
+    
+    try {
+      setLoading(true);
+      const res = await apiFetch(`/reports/export-url?month=${selectedMonth}&format=${format}`);
+      const data = await res.json();
+      if (data.url) {
+        window.open(data.url, '_blank');
+      } else {
+        throw new Error('No URL returned');
+      }
+    } catch (error) {
+      console.error('Failed to get export URL', error);
+      // Fallback
+      const url = `https://docs.google.com/spreadsheets/d/${activeAccount.spreadsheetId}/export?format=${format}&portrait=false`;
+      window.open(url, '_blank');
+    } finally {
+      // Re-fetch report data to reset loading state properly since we set it to true
+      setLoading(false);
+    }
   };
 
   const formatCurrency = (amount: number) => (
@@ -152,20 +169,12 @@ export const Report = () => {
         <h1 className="text-3xl text-accent">{t('reportTitle')}</h1>
         <div className="flex items-center gap-3">
           <Button 
-            onClick={() => handleDownloadSpreadsheet('pdf')} 
-            disabled={!report}
-            className="hidden sm:flex items-center gap-2 shadow-sm bg-red-500 hover:bg-red-600 border-none"
-          >
-            <FileText size={18} />
-            {lang === 'id' ? 'Download PDF' : 'Download PDF'}
-          </Button>
-          <Button 
             onClick={() => handleDownloadSpreadsheet('xlsx')} 
             disabled={!report}
             className="hidden sm:flex items-center gap-2 shadow-sm bg-green-500 hover:bg-green-600 border-none"
           >
             <FileSpreadsheet size={18} />
-            {lang === 'id' ? 'Download Excel' : 'Download Excel'}
+            {lang === 'id' ? 'Download Laporan' : 'Download Report'}
           </Button>
           <select
             className="bg-surface border-2 border-orange-100 rounded-xl px-4 py-2 font-medium focus:outline-none focus:border-primary shadow-sm"
