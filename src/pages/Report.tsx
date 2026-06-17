@@ -7,6 +7,7 @@ import { apiFetch } from '@/lib/api';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/Button';
 import { jsPDF } from 'jspdf';
+import 'jspdf-autotable';
 import html2canvas from 'html2canvas';
 
 type ReportData = {
@@ -40,34 +41,53 @@ export const Report = () => {
   const [isDownloading, setIsDownloading] = useState(false);
 
   const handleDownloadPdf = async () => {
-    const reportElement = document.getElementById('report-content');
-    if (!reportElement) return;
-
     setIsDownloading(true);
     try {
-      const canvas = await html2canvas(reportElement, {
-        scale: 2,
-        useCORS: true,
-        logging: false,
-        backgroundColor: '#fef3c7' // matches orange-50/bg surface approximately or white
-      });
+      const response = await apiFetch(`/transactions?limit=2000`);
+      if (!response.ok) throw new Error('Failed to fetch transactions');
+      const data = await response.json();
       
-      const imgData = canvas.toDataURL('image/png');
-      const pdf = new jsPDF({
-        orientation: 'portrait',
-        unit: 'mm',
-        format: 'a4'
+      const transactions = data.data.filter((tx: any) => {
+        const txDate = new Date(tx.transactionDate);
+        return txDate.getMonth() + 1 === selectedMonth && txDate.getFullYear() === selectedYear;
       });
 
-      const pdfWidth = pdf.internal.pageSize.getWidth();
-      const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
+      transactions.sort((a: any, b: any) => new Date(b.transactionDate).getTime() - new Date(a.transactionDate).getTime());
+
+      const pdf = new jsPDF();
       
-      pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
-      pdf.save(`Laporan_Goceng_${selectedMonth}_${selectedYear}.pdf`);
+      pdf.setFontSize(18);
+      const monthLabel = monthOptions.find(o => o.month === selectedMonth)?.label || selectedMonth;
+      pdf.text(`Laporan Transaksi Goceng - ${monthLabel} ${selectedYear}`, 14, 22);
+      
+      pdf.setFontSize(11);
+      pdf.text(`Total Pemasukan: ${formatCurrency(report?.summary.totalIncome || 0)}`, 14, 32);
+      pdf.text(`Total Pengeluaran: ${formatCurrency(report?.summary.totalExpense || 0)}`, 14, 38);
+      pdf.text(`Saldo Bersih: ${formatCurrency(report?.summary.netBalance || 0)}`, 14, 44);
+
+      const tableData = transactions.map((tx: any) => [
+        new Date(tx.transactionDate).toLocaleDateString('id-ID'),
+        tx.description || tx.merchantName || '-',
+        tx.category?.name || '-',
+        tx.account?.name || '-',
+        tx.type === 'INCOME' ? 'Pemasukan' : 'Pengeluaran',
+        formatCurrency(Number(tx.amount))
+      ]);
+
+      (pdf as any).autoTable({
+        startY: 50,
+        head: [['Tanggal', 'Deskripsi', 'Kategori', 'Sumber Dana', 'Tipe', 'Nominal']],
+        body: tableData,
+        theme: 'striped',
+        headStyles: { fillColor: [249, 115, 22] }, // orange-500
+        styles: { fontSize: 10, cellPadding: 4 },
+        columnStyles: { 5: { halign: 'right' } }
+      });
+
+      pdf.save(`Data_Transaksi_Goceng_${selectedMonth}_${selectedYear}.pdf`);
     } catch (error: any) {
       console.error('Failed to generate PDF', error);
-      alert(lang === 'id' ? `Sedang mengalihkan ke mode cetak (Print to PDF) karena error: ${error?.message || 'Unknown'}` : `Switching to print mode due to error: ${error?.message || 'Unknown'}`);
-      window.print();
+      alert(lang === 'id' ? `Gagal mengunduh PDF: ${error?.message || 'Unknown'}` : `Failed to download PDF: ${error?.message || 'Unknown'}`);
     } finally {
       setIsDownloading(false);
     }
