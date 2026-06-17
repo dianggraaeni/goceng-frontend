@@ -6,9 +6,7 @@ import { TrendingUp, TrendingDown, Wallet, Download } from 'lucide-react';
 import { apiFetch } from '@/lib/api';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/Button';
-import { jsPDF } from 'jspdf';
-import autoTable from 'jspdf-autotable';
-import html2canvas from 'html2canvas';
+import { FileSpreadsheet, FileText } from 'lucide-react';
 
 type ReportData = {
   summary: {
@@ -35,62 +33,18 @@ export const Report = () => {
   const today = new Date();
   const [selectedMonth, setSelectedMonth] = useState(today.getMonth() + 1);
   const [selectedYear, setSelectedYear] = useState(today.getFullYear());
-  const { selectedAccountId: activeAccountId } = useAuth();
+  const { selectedAccountId: activeAccountId, messagingAccounts } = useAuth();
   const [report, setReport] = useState<ReportData | null>(null);
   const [loading, setLoading] = useState(true);
-  const [isDownloading, setIsDownloading] = useState(false);
 
-  const handleDownloadPdf = async () => {
-    setIsDownloading(true);
-    try {
-      const response = await apiFetch(`/transactions?limit=2000`);
-      if (!response.ok) throw new Error('Failed to fetch transactions');
-      const data = await response.json();
-      
-      const transactions = data.data.filter((tx: any) => {
-        const txDate = new Date(tx.transactionDate);
-        return txDate.getMonth() + 1 === selectedMonth && txDate.getFullYear() === selectedYear;
-      });
-
-      transactions.sort((a: any, b: any) => new Date(b.transactionDate).getTime() - new Date(a.transactionDate).getTime());
-
-      const pdf = new jsPDF();
-      
-      pdf.setFontSize(18);
-      const monthLabel = monthOptions.find(o => o.month === selectedMonth)?.label || selectedMonth;
-      pdf.text(`Laporan Transaksi Goceng - ${monthLabel} ${selectedYear}`, 14, 22);
-      
-      pdf.setFontSize(11);
-      pdf.text(`Total Pemasukan: ${formatCurrency(report?.summary.totalIncome || 0)}`, 14, 32);
-      pdf.text(`Total Pengeluaran: ${formatCurrency(report?.summary.totalExpense || 0)}`, 14, 38);
-      pdf.text(`Saldo Bersih: ${formatCurrency(report?.summary.netBalance || 0)}`, 14, 44);
-
-      const tableData = transactions.map((tx: any) => [
-        new Date(tx.transactionDate).toLocaleDateString('id-ID'),
-        tx.description || tx.merchantName || '-',
-        tx.category?.name || '-',
-        tx.account?.name || '-',
-        tx.type === 'INCOME' ? 'Pemasukan' : 'Pengeluaran',
-        formatCurrency(Number(tx.amount))
-      ]);
-
-      autoTable(pdf, {
-        startY: 50,
-        head: [['Tanggal', 'Deskripsi', 'Kategori', 'Sumber Dana', 'Tipe', 'Nominal']],
-        body: tableData,
-        theme: 'striped',
-        headStyles: { fillColor: [249, 115, 22] }, // orange-500
-        styles: { fontSize: 10, cellPadding: 4 },
-        columnStyles: { 5: { halign: 'right' } }
-      });
-
-      pdf.save(`Data_Transaksi_Goceng_${selectedMonth}_${selectedYear}.pdf`);
-    } catch (error: any) {
-      console.error('Failed to generate PDF', error);
-      alert(lang === 'id' ? `Gagal mengunduh PDF: ${error?.message || 'Unknown'}` : `Failed to download PDF: ${error?.message || 'Unknown'}`);
-    } finally {
-      setIsDownloading(false);
+  const handleDownloadSpreadsheet = (format: 'pdf' | 'xlsx') => {
+    const activeAccount = messagingAccounts.find(a => a.id === activeAccountId);
+    if (!activeAccount || !activeAccount.spreadsheetId) {
+      alert(lang === 'id' ? 'Spreadsheet tidak ditemukan atau belum terhubung.' : 'Spreadsheet is not found or not connected.');
+      return;
     }
+    const url = `https://docs.google.com/spreadsheets/d/${activeAccount.spreadsheetId}/export?format=${format}&portrait=false`;
+    window.open(url, '_blank');
   };
 
   const formatCurrency = (amount: number) => (
@@ -196,14 +150,22 @@ export const Report = () => {
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
       <div className="flex justify-between items-center">
         <h1 className="text-3xl text-accent">{t('reportTitle')}</h1>
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-3">
           <Button 
-            onClick={handleDownloadPdf} 
-            disabled={isDownloading || !report}
-            className="hidden sm:flex items-center gap-2 shadow-sm"
+            onClick={() => handleDownloadSpreadsheet('pdf')} 
+            disabled={!report}
+            className="hidden sm:flex items-center gap-2 shadow-sm bg-red-500 hover:bg-red-600 border-none"
           >
-            <Download size={18} />
-            {isDownloading ? (lang === 'id' ? 'Memproses...' : 'Processing...') : (lang === 'id' ? 'Download PDF' : 'Download PDF')}
+            <FileText size={18} />
+            {lang === 'id' ? 'Download PDF' : 'Download PDF'}
+          </Button>
+          <Button 
+            onClick={() => handleDownloadSpreadsheet('xlsx')} 
+            disabled={!report}
+            className="hidden sm:flex items-center gap-2 shadow-sm bg-green-500 hover:bg-green-600 border-none"
+          >
+            <FileSpreadsheet size={18} />
+            {lang === 'id' ? 'Download Excel' : 'Download Excel'}
           </Button>
           <select
             className="bg-surface border-2 border-orange-100 rounded-xl px-4 py-2 font-medium focus:outline-none focus:border-primary shadow-sm"
